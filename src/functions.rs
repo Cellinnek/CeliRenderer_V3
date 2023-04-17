@@ -34,7 +34,7 @@ pub fn line(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], color: u
             break;
         };
 
-        err_tolerance = 1 * err;
+        err_tolerance = err;
 
         if err_tolerance > -dx {
             err -= dy;
@@ -87,6 +87,8 @@ pub fn line(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], color: u
     }
 }
 */
+
+#[allow(non_snake_case)]
 pub fn triangle(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], [x3, y3]: [i32; 2], color:u32){
     let Y1 = (16.0*y1 as f64).round() as i64;
     let Y2 = (16.0*y2 as f64).round() as i64;
@@ -141,19 +143,19 @@ pub fn triangle(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], [x3,
             let a10 = (C1 + DX12 * y0 - DY12 * x1 > 0) as i32;
             let a01 = (C1 + DX12 * y1 - DY12 * x0 > 0) as i32;
             let a11 = (C1 + DX12 * y1 - DY12 * x1 > 0) as i32;
-            let a = (a00 << 0) | (a10 << 1) | (a01 << 2) | (a11 << 3);
+            let a = a00 | (a10 << 1) | (a01 << 2) | (a11 << 3);
 
             let b00 = (C2 + DX23 * y0 - DY23 * x0 > 0) as i32;
             let b10 = (C2 + DX23 * y0 - DY23 * x1 > 0) as i32;
             let b01 = (C2 + DX23 * y1 - DY23 * x0 > 0) as i32;
             let b11 = (C2 + DX23 * y1 - DY23 * x1 > 0) as i32;
-            let b = (b00 << 0) | (b10 << 1) | (b01 << 2) | (b11 << 3);
+            let b = b00 | (b10 << 1) | (b01 << 2) | (b11 << 3);
 
             let c00 = (C3 + DX31 * y0 - DY31 * x0 > 0) as i32;
             let c10 = (C3 + DX31 * y0 - DY31 * x1 > 0) as i32;
             let c01 = (C3 + DX31 * y1 - DY31 * x0 > 0) as i32;
             let c11 = (C3 + DX31 * y1 - DY31 * x1 > 0) as i32;
-            let c = (c00 << 0) | (c10 << 1) | (c01 << 2) | (c11 << 3);
+            let c = c00 | (c10 << 1) | (c01 << 2) | (c11 << 3);
 
             if a == 0x0 || b == 0x0 || c == 0x0 {continue;}
 

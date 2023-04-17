@@ -3,7 +3,7 @@ use std::alloc::System;
 static A: System = System;
 extern crate core;
 
-use minifb::{Scale, ScaleMode, Window, WindowOptions};
+use minifb::{Window, WindowOptions};
 
 const WIDTH: usize = 800;
 const HEIGHT: usize = 800;
@@ -21,9 +21,7 @@ fn main() {
         "Renderer",
         WIDTH,
         HEIGHT,
-        WindowOptions {
-            ..WindowOptions::default()
-        },
+        WindowOptions::default(),
     ).unwrap();
 
     window.set_position(360, 0);

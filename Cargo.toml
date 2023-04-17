@@ -1,0 +1,16 @@
+[package]
+name = "Renderer_V3"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+minifb = "0.24.0"
+
+[profile.release]
+debug-assertions = false
+debug = false
+overflow-checks = false
+strip = true
+lto = true
+opt-level = 2
+panic = "abort"
