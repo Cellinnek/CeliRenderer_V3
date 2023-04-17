@@ -1,7 +1,7 @@
 use std::fs;
 use crate::WIDTH;
 use crate::HEIGHT;
-/*use std::mem::swap;*/
+use std::mem::swap;
 
 pub fn line(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], color: u32) {
     let mut x = x1;
@@ -47,7 +47,7 @@ pub fn line(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], color: u
     }
 }
 
-/*pub fn triangle(buffer: &mut [u32], [mut x1,mut y1]: [i32; 2], [mut x2,mut y2]: [i32; 2], [mut x3,mut y3]: [i32; 2], color:u32){
+pub fn triangle_old(buffer: &mut [u32], [mut x1,mut y1]: [i32; 2], [mut x2,mut y2]: [i32; 2], [mut x3,mut y3]: [i32; 2], color:u32){
     let height = HEIGHT as i32;
     let width = WIDTH as i32;
 
@@ -86,17 +86,24 @@ pub fn line(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], color: u
         else{ xt += dx_low;}
     }
 }
-*/
+
 
 #[allow(non_snake_case)]
 pub fn triangle(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], [x3, y3]: [i32; 2], color:u32){
-    let Y1 = (16.0*y1 as f64).round() as i64;
-    let Y2 = (16.0*y2 as f64).round() as i64;
-    let Y3 = (16.0*y3 as f64).round() as i64;
+    if (x1 > WIDTH as i32 || x1 < 0) && (x2 > WIDTH as i32 || x2 < 0) && (x3 > WIDTH as i32 || x3 < 0){
+        return;
+    }
+    if (y1 > HEIGHT as i32 || y1 < 0) && (y2 > HEIGHT as i32 || y2 < 0) && (y3 > HEIGHT as i32 || y3 < 0){
+        return;
+    }
 
-    let X1 = (16.0*x1 as f64).round() as i64;
-    let X2 = (16.0*x2 as f64).round() as i64;
-    let X3 = (16.0*x3 as f64).round() as i64;
+    let Y1 = (16.0*y1 as f32).round() as i32;
+    let Y2 = (16.0*y2 as f32).round() as i32;
+    let Y3 = (16.0*y3 as f64).round() as i32;
+
+    let X1 = (16.0*x1 as f32).round() as i32;
+    let X2 = (16.0*x2 as f32).round() as i32;
+    let X3 = (16.0*x3 as f32).round() as i32;
 
     let DX12 = X1-X2;
     let DX23 = X2-X3;
@@ -119,7 +126,7 @@ pub fn triangle(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], [x3,
     let mut miny = (*[Y1,Y2,Y3].iter().min().unwrap() + 0xF) >> 4;
     let maxy = (*[Y1,Y2,Y3].iter().max().unwrap() + 0xF) >> 4;
 
-    let q = 8;
+    let q = if (maxx-minx)>(maxy-miny){(maxx-minx+1)} else {(maxy-miny+1)};
 
     minx &= !(q-1);
     miny &= !(q-1);
@@ -139,22 +146,22 @@ pub fn triangle(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], [x3,
             let y0 = y << 4;
             let y1 = (y + q - 1) << 4;
 
-            let a00 = (C1 + DX12 * y0 - DY12 * x0 > 0) as i32;
-            let a10 = (C1 + DX12 * y0 - DY12 * x1 > 0) as i32;
-            let a01 = (C1 + DX12 * y1 - DY12 * x0 > 0) as i32;
-            let a11 = (C1 + DX12 * y1 - DY12 * x1 > 0) as i32;
+            let a00 = (C1 + DX12 * y0 - DY12 * x0 > 0) as u8;
+            let a10 = (C1 + DX12 * y0 - DY12 * x1 > 0) as u8;
+            let a01 = (C1 + DX12 * y1 - DY12 * x0 > 0) as u8;
+            let a11 = (C1 + DX12 * y1 - DY12 * x1 > 0) as u8;
             let a = a00 | (a10 << 1) | (a01 << 2) | (a11 << 3);
 
-            let b00 = (C2 + DX23 * y0 - DY23 * x0 > 0) as i32;
-            let b10 = (C2 + DX23 * y0 - DY23 * x1 > 0) as i32;
-            let b01 = (C2 + DX23 * y1 - DY23 * x0 > 0) as i32;
-            let b11 = (C2 + DX23 * y1 - DY23 * x1 > 0) as i32;
+            let b00 = (C2 + DX23 * y0 - DY23 * x0 > 0) as u8;
+            let b10 = (C2 + DX23 * y0 - DY23 * x1 > 0) as u8;
+            let b01 = (C2 + DX23 * y1 - DY23 * x0 > 0) as u8;
+            let b11 = (C2 + DX23 * y1 - DY23 * x1 > 0) as u8;
             let b = b00 | (b10 << 1) | (b01 << 2) | (b11 << 3);
 
-            let c00 = (C3 + DX31 * y0 - DY31 * x0 > 0) as i32;
-            let c10 = (C3 + DX31 * y0 - DY31 * x1 > 0) as i32;
-            let c01 = (C3 + DX31 * y1 - DY31 * x0 > 0) as i32;
-            let c11 = (C3 + DX31 * y1 - DY31 * x1 > 0) as i32;
+            let c00 = (C3 + DX31 * y0 - DY31 * x0 > 0) as u8;
+            let c10 = (C3 + DX31 * y0 - DY31 * x1 > 0) as u8;
+            let c01 = (C3 + DX31 * y1 - DY31 * x0 > 0) as u8;
+            let c11 = (C3 + DX31 * y1 - DY31 * x1 > 0) as u8;
             let c = c00 | (c10 << 1) | (c01 << 2) | (c11 << 3);
 
             if a == 0x0 || b == 0x0 || c == 0x0 {continue;}
@@ -162,7 +169,7 @@ pub fn triangle(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], [x3,
             if a == 0xF && b == 0xF && c == 0xF {
                 for iy in 0..q{
                     for ix in x..(x+q){
-                        buffer[(ix+iy*WIDTH as i64) as usize] = color;
+                        buffer[(ix+iy*WIDTH as i32) as usize] = color;
                     }
                 }
             }
@@ -178,7 +185,7 @@ pub fn triangle(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], [x3,
 
                     for ix in x..(x+q){
                         if CX1 > 0 && CX2 > 0 && CX3 > 0 {
-                            buffer[(ix+iy*WIDTH as i64) as usize] = color;
+                            buffer[(ix+iy*WIDTH as i32) as usize] = color;
                         }
 
                         CX1 -= FDY12;
@@ -239,4 +246,30 @@ impl Obj{
         }
     }
 
+    pub fn rotate(&mut self ,r: Vec3, fi: f64, axis: u8){
+        match axis%3{
+            0 => {
+                for i in &mut self.mesh {
+                    let (y, z) = (i.y - r.y, i.z - r.z);
+                    i.z = z * fi.cos() - y * fi.sin() + r.z;
+                    i.y = z * fi.sin() + y * fi.cos() + r.y;
+                }
+            },
+            1 => {
+                for i in &mut self.mesh {
+                    let (x, z) = (i.x - r.x, i.z - r.z);
+                    i.x = x * fi.cos() - z * fi.sin() + r.x;
+                    i.z = x * fi.sin() + z * fi.cos() + r.z;
+                }
+            },
+            2 => {
+                for i in &mut self.mesh {
+                    let (x, y) = (i.x - r.x, i.y - r.y);
+                    i.y = y * fi.cos() - x * fi.sin() + r.y;
+                    i.x = y * fi.sin() + x * fi.cos() + r.x;
+                }
+            },
+            _ => println!("Axis error!")
+        }
+    }
 }

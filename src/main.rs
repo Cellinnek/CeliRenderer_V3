@@ -25,19 +25,26 @@ fn main() {
     ).unwrap();
 
     window.set_position(360, 0);
-    /*window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));*/
+    /*window.limit_update_rate(Some(std::time::Duration::from_micros(16600*4)));*/
 
     while window.is_open() {
         /*buffer[((200 /*y*/ as usize) * (WIDTH)) + 200 /*x*/ as usize] = 0x00ffffff;*/
+
         cube.faces.sort_by(|x, y| {
             (-(cube.mesh[x[0]].z + cube.mesh[x[1]].z + cube.mesh[x[2]].z) / 3.0)
                 .partial_cmp(&(-(cube.mesh[y[0]].z + cube.mesh[y[1]].z + cube.mesh[y[2]].z) / 3.0))
                 .unwrap()
         });
+        /*cube.rotate(Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 4.0,
+        }, 0.1, 1);*/
         for i in &cube.faces{
             let a = &cube.mesh[i[0]];
             let b = &cube.mesh[i[1]];
             let c = &cube.mesh[i[2]];
+
             let line1 = Vec3{
                 x: b.x-a.x,
                 y: b.y-a.y,
@@ -65,9 +72,9 @@ fn main() {
                 + normal.z * (a.z))
                 < 0.0{
                 let mut light_direction = Vec3 {
-                    x: 0.0,
-                    y: 0.0,
-                    z: -1.0,
+                    x: 1.0,
+                    y: -1.0,
+                    z: -1.5,
                 };
                 let l = (light_direction.x * light_direction.x
                     + light_direction.y * light_direction.y
@@ -78,15 +85,12 @@ fn main() {
                 light_direction.z /= l;
                 let dp = ((255.0*(normal.x * light_direction.x
                     + normal.y * light_direction.y
-                    + normal.z * light_direction.z)) as u32 * 0x10101).max(0x3f3f3f);
+                    + normal.z * light_direction.z)) as u32 * 0x10101).max(0x2b2b2b);
 
-                let ap = a.project(3.0);
-                let bp = b.project(3.0);
-                let cp = c.project(3.0);
+                let ap = a.project(2.0);
+                let bp = b.project(2.0);
+                let cp = c.project(2.0);
 
-                /*line(&mut buffer, ap,bp, 0xff00ff);
-                line(&mut buffer, ap,cp, 0xff00ff);
-                line(&mut buffer, cp,bp, 0xff00ff);*/
                 triangle(&mut buffer,
                          ap,
                          bp,
@@ -97,9 +101,11 @@ fn main() {
 
 
         }
-       /* for i in &mut cube.mesh{
-            i.x -= 0.01;
-        }*/
+        /*cube.rotate(Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 4.0,
+        }, -0.1, 1);*/
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();//.expect("Oops!");
 
         /*buffer = vec![0; WIDTH * HEIGHT];*/

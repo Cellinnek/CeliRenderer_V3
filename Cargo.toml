@@ -12,5 +12,5 @@ debug = false
 overflow-checks = false
 strip = true
 lto = true
-opt-level = 2
+opt-level = 3
 panic = "abort"
