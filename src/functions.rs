@@ -1,7 +1,7 @@
 use crate::HEIGHT;
 use crate::WIDTH;
 use std::fs;
-use core::mem::swap;
+/*use core::mem::swap;*/
 /*pub fn line(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], color: u32) {
     let mut x = x1;
     let mut y = y1;
@@ -37,7 +37,7 @@ use core::mem::swap;
     }
 }*/
 
-pub fn triangle_old(buffer: &mut [u32], [mut x1, mut y1]: [i32; 2], [mut x2, mut y2]: [i32; 2], [mut x3, mut y3]: [i32; 2], color: u32) {
+/*pub fn triangle_old(buffer: &mut [u32], [mut x1, mut y1]: [i32; 2], [mut x2, mut y2]: [i32; 2], [mut x3, mut y3]: [i32; 2], color: u32) {
     let height = HEIGHT as i32;
     let width = WIDTH as i32;
 
@@ -83,7 +83,7 @@ pub fn triangle_old(buffer: &mut [u32], [mut x1, mut y1]: [i32; 2], [mut x2, mut
             xt += dx_low;
         }
     }
-}
+}*/
 
 #[allow(non_snake_case)]
 pub fn triangle(
@@ -235,6 +235,7 @@ pub struct Vec3 {
     pub y: f64,
     pub z: f64,
 }
+
 impl Vec3 {
     pub fn project(&self, f: f64) -> [i32; 2] {
         [
@@ -242,19 +243,46 @@ impl Vec3 {
             (((self.y * f) / self.z + 1.0) * HEIGHT as f64 / 2.0) as i32,
         ]
     }
-    pub fn rotate(&mut self, f: f64) {
 
+    pub fn normalise(&mut self) {
+        let l = (self.x * self.x
+            + self.y * self.y
+            + self.z * self.z)
+            .sqrt();
+        self.x /= l;
+        self.y /= l;
+        self.z /= l;
+    }
+
+    pub fn rotate(&mut self, f: f64) {
     }
 }
 
-/*pub fn dot(a: Vec3, b: Vec3) -> f64 {
-    a.x * b.x + a.y * b.y + a.x * b.y
-}
-*/
+pub fn dot(a: &Vec3, b: &Vec3) -> f64 {a.x * b.x + a.y * b.y + a.z * b.z}
 
-pub struct Obj {
-    pub mesh: Vec<Vec3>,
-    pub faces: Vec<[usize; 3]>,
+pub struct Obj {pub mesh: Vec<Vec3>, pub faces: Vec<[usize; 3]>}
+
+pub fn normal(a: &Vec3, b: &Vec3, c: &Vec3) -> Vec3{
+    let line1 = Vec3 {
+        x: b.x - a.x,
+        y: b.y - a.y,
+        z: b.z - a.z,
+    };
+
+    let line2 = Vec3 {
+        x: c.x - a.x,
+        y: c.y - a.y,
+        z: c.z - a.z,
+    };
+
+    let mut normal = Vec3 {
+        x: line1.y * line2.z - line1.z * line2.y,
+        y: line1.z * line2.x - line1.x * line2.z,
+        z: line1.x * line2.y - line1.y * line2.x,
+    };
+
+    normal.normalise();
+    normal
 }
 
 impl Obj {
