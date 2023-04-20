@@ -13,26 +13,24 @@ use functions::*;
 
 fn main() {
     let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
-    let mut cube = Obj{ mesh: vec![], faces: vec![] };
+    let mut cube = Obj {
+        mesh: vec![],
+        faces: vec![],
+    };
 
     cube.load_from_file("C:/Users/Cysie/CLionProjects/Renderer_V3/src/monke.obj");
 
-    let mut window = Window::new(
-        "Renderer",
-        WIDTH,
-        HEIGHT,
-        WindowOptions::default(),
-    ).unwrap();
+    let mut window = Window::new("Renderer", WIDTH, HEIGHT, WindowOptions::default()).unwrap();
 
     window.set_position(360, 0);
-    /*window.limit_update_rate(Some(std::time::Duration::from_micros(16600*4)));*/
+    /*window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));*/
 
     while window.is_open() {
         /*buffer[((200 /*y*/ as usize) * (WIDTH)) + 200 /*x*/ as usize] = 0x00ffffff;*/
 
         cube.faces.sort_by(|x, y| {
-            (-(cube.mesh[x[0]].z + cube.mesh[x[1]].z + cube.mesh[x[2]].z) / 3.0)
-                .partial_cmp(&(-(cube.mesh[y[0]].z + cube.mesh[y[1]].z + cube.mesh[y[2]].z) / 3.0))
+            ((cube.mesh[y[0]].z + cube.mesh[y[1]].z + cube.mesh[y[2]].z) / 3.0)
+                .partial_cmp(&((cube.mesh[x[0]].z + cube.mesh[x[1]].z + cube.mesh[x[2]].z) / 3.0))
                 .unwrap()
         });
         /*cube.rotate(Vec3 {
@@ -40,20 +38,20 @@ fn main() {
             y: 0.0,
             z: 4.0,
         }, 0.1, 1);*/
-        for i in &cube.faces{
+        for i in &cube.faces {
             let a = &cube.mesh[i[0]];
             let b = &cube.mesh[i[1]];
             let c = &cube.mesh[i[2]];
 
-            let line1 = Vec3{
-                x: b.x-a.x,
-                y: b.y-a.y,
-                z: b.z-a.z,
+            let line1 = Vec3 {
+                x: b.x - a.x,
+                y: b.y - a.y,
+                z: b.z - a.z,
             };
-            let line2 = Vec3{
-                x: c.x-a.x,
-                y: c.y-a.y,
-                z: c.z-a.z,
+            let line2 = Vec3 {
+                x: c.x - a.x,
+                y: c.y - a.y,
+                z: c.z - a.z,
             };
 
             let mut normal = Vec3 {
@@ -67,14 +65,11 @@ fn main() {
             normal.y /= l;
             normal.z /= l;
 
-            if (normal.x * (a.x)
-                + normal.y * (a.y)
-                + normal.z * (a.z))
-                < 0.0{
+            if (normal.x * (a.x) + normal.y * (a.y) + normal.z * (a.z)) < 0.0 {
                 let mut light_direction = Vec3 {
-                    x: 1.0,
-                    y: -1.0,
-                    z: -1.5,
+                    x: 1.5,
+                    y: -1.5,
+                    z: -1.0,
                 };
                 let l = (light_direction.x * light_direction.x
                     + light_direction.y * light_direction.y
@@ -83,34 +78,26 @@ fn main() {
                 light_direction.x /= l;
                 light_direction.y /= l;
                 light_direction.z /= l;
-                let dp = ((255.0*(normal.x * light_direction.x
-                    + normal.y * light_direction.y
-                    + normal.z * light_direction.z)) as u32 * 0x10101).max(0x2b2b2b);
+                let dp = ((128.0
+                    * (normal.x * light_direction.x
+                        + normal.y * light_direction.y
+                        + normal.z * light_direction.z)) as u32
+                    * 0x10101
+                    + 0x3f3f3f)
+                    .max(0x2b2b2b);
 
                 let ap = a.project(2.0);
                 let bp = b.project(2.0);
                 let cp = c.project(2.0);
 
-                triangle(&mut buffer,
-                         ap,
-                         bp,
-                         cp,
-                         dp);
+                triangle(&mut buffer, ap, bp, cp, dp);
             }
-
-
-
         }
-        /*cube.rotate(Vec3 {
-            x: 0.0,
-            y: 0.0,
-            z: 4.0,
-        }, -0.1, 1);*/
-        window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();//.expect("Oops!");
+
+        window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap(); //.expect("Oops!");
 
         /*buffer = vec![0; WIDTH * HEIGHT];*/
         buffer.clear();
-        buffer.resize(WIDTH*HEIGHT,0);
-
+        buffer.resize(WIDTH * HEIGHT, 0);
     }
 }
