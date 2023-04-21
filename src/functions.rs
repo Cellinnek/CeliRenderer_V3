@@ -2,6 +2,7 @@ use crate::HEIGHT;
 use crate::WIDTH;
 use std::fs;
 /*use core::mem::swap;*/
+
 /*pub fn line(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], color: u32) {
     let mut x = x1;
     let mut y = y1;
@@ -254,13 +255,31 @@ impl Vec3 {
         self.z /= l;
     }
 
-    pub fn rotate(&mut self, f: f64) {
+    pub fn rotate(&mut self, r: Vec3, fi: f64, axis: u8) {
+        match axis % 3 {
+            0 => {
+                let (y, z) = (self.y - r.y, self.z - r.z);
+                self.z = z * fi.cos() - y * fi.sin() + r.z;
+                self.y = z * fi.sin() + y * fi.cos() + r.y;
+            }
+            1 => {
+                let (x, z) = (self.x - r.x, self.z - r.z);
+                self.x = x * fi.cos() - z * fi.sin() + r.x;
+                self.z = x * fi.sin() + z * fi.cos() + r.z;
+            }
+            2 => {
+                let (x, y) = (self.x - r.x, self.y - r.y);
+                self.y = y * fi.cos() - x * fi.sin() + r.y;
+                self.x = y * fi.sin() + x * fi.cos() + r.x;
+            }
+            _ => println!("Axis error!"),
+        }
     }
 }
 
 pub fn dot(a: &Vec3, b: &Vec3) -> f64 {a.x * b.x + a.y * b.y + a.z * b.z}
 
-pub struct Obj {pub mesh: Vec<Vec3>, pub faces: Vec<[usize; 3]>}
+pub struct Obj {pub mesh: Vec<Vec3>, pub faces: Vec<[usize; 3]>, pub projected_mesh: Vec<[i32; 2]>}
 
 pub fn normal(a: &Vec3, b: &Vec3, c: &Vec3) -> Vec3{
     let line1 = Vec3 {

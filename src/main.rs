@@ -16,9 +16,11 @@ fn main() {
     let mut cube = Obj {
         mesh: vec![],
         faces: vec![],
+        projected_mesh: vec![]
     };
 
     cube.load_from_file("C:/Users/Cysie/CLionProjects/Renderer_V3/src/monke.obj");
+    cube.projected_mesh = vec![[0,0]; cube.mesh.len()];
 
     let mut window = Window::new("Renderer", WIDTH, HEIGHT, WindowOptions{
         scale: Scale::X1,
@@ -63,13 +65,35 @@ fn main() {
                     + 0x3f3f3f)
                     .max(0x2b2b2b);
 
-                let ap = a.project(2.0);
-                let bp = b.project(2.0);
-                let cp = c.project(2.0);
+
+                let ap = if cube.projected_mesh[i[0]] == [0,0] {
+                    a.project(2.0)
+                }
+                else{
+                    cube.projected_mesh[i[0]]
+                };
+                let bp = if cube.projected_mesh[i[1]] == [0,0] {
+                    b.project(2.0)
+                }
+                else{
+                    cube.projected_mesh[i[1]]
+                };
+                let cp = if cube.projected_mesh[i[2]] == [0,0] {
+                    c.project(2.0)
+                }
+                else{
+                    cube.projected_mesh[i[2]]
+                };
+
+                cube.projected_mesh[i[0]] = ap;
+                cube.projected_mesh[i[1]] = bp;
+                cube.projected_mesh[i[2]] = cp;
 
                 triangle(&mut buffer, ap, bp, cp, dp);
             }
         }
+        cube.projected_mesh.clear();
+        cube.projected_mesh.resize(cube.mesh.len(), [0,0]);
 
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap(); //.expect("Oops!");
 
