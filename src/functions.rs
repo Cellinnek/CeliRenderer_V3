@@ -43,8 +43,7 @@ pub fn triangle(
     [x1, y1]: [i32; 2],
     [x2, y2]: [i32; 2],
     [x3, y3]: [i32; 2],
-    color: u32)
-{
+    color: u32) {
     unsafe {
         if (x1 >= WIDTH as i32 || x1 < 0)
             && (x2 >= WIDTH as i32 || x2 < 0)
@@ -185,7 +184,7 @@ pub fn triangle(
 pub struct Vec3 {
     pub x: f64,
     pub y: f64,
-    pub z: f64,
+    pub z: f64
 }
 
 impl Vec3 {
