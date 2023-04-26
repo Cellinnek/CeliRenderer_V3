@@ -20,7 +20,7 @@ fn main() {
         projected_mesh: vec![]
     };
 
-    cube.load_from_file("C:/Users/Cysie/CLionProjects/Renderer_V3/src/monke.obj");
+    cube.load_from_file("C:/Users/Cysie/CLionProjects/Renderer_V3/src/challenger.obj");
     cube.projected_mesh = vec![[0,0]; cube.mesh.len()];
 
     let mut window = Window::new("Renderer", WIDTH, HEIGHT, WindowOptions{
