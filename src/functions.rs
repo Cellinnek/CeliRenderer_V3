@@ -1,7 +1,6 @@
 use crate::HEIGHT;
 use crate::WIDTH;
 use std::fs;
-/*use core::mem::swap;*/
 
 /*pub fn line(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], color: u32) {
     let mut x = x1;
@@ -38,62 +37,14 @@ use std::fs;
     }
 }*/
 
-/*pub fn triangle_old(buffer: &mut [u32], [mut x1, mut y1]: [i32; 2], [mut x2, mut y2]: [i32; 2], [mut x3, mut y3]: [i32; 2], color: u32) {
-    let height = HEIGHT as i32;
-    let width = WIDTH as i32;
-
-    if y2 > y3 {
-        swap(&mut x2, &mut x3);
-        swap(&mut y2, &mut y3);
-    }
-    if y1 > y2 {
-        swap(&mut x1, &mut x2);
-        swap(&mut y1, &mut y2);
-    }
-    if y2 > y3 {
-        swap(&mut x2, &mut x3);
-        swap(&mut y2, &mut y3);
-    }
-
-    let dx_far = (x3 - x1) as f64 / (y3 - y1) as f64;
-    let dx_upper = (x2 - x1) as f64 / (y2 - y1 + 1) as f64;
-    let dx_low = (x3 - x2) as f64 / (y3 - y2) as f64;
-    let mut xf = x1 as f64;
-    let mut xt = x1 as f64 + dx_upper;
-    for y in y1..(if y3 < height - 1 { y3 } else { height }) {
-        if y >= 0 {
-            for x in (if xf > 0.0 { xf as i32 } else { 0 })..(if xt < (width - 1) as f64 {
-                xt as i32
-            } else {
-                width - 1
-            }) {
-                buffer[(x + y * width) as usize] = color;
-            }
-            for x in (if xt > 0.0 { xt as i32 } else { 0 })..(if xf < width as f64 {
-                xf as i32
-            } else {
-                width - 1
-            }) {
-                buffer[(x + y * width) as usize] = color;
-            }
-        }
-        xf += dx_far;
-        if y < y2 {
-            xt += dx_upper;
-        } else {
-            xt += dx_low;
-        }
-    }
-}*/
-
 #[allow(non_snake_case)]
 pub fn triangle(
     buffer: &mut [u32],
     [x1, y1]: [i32; 2],
     [x2, y2]: [i32; 2],
     [x3, y3]: [i32; 2],
-    color: u32,
-) {
+    color: u32)
+{
     unsafe {
         if (x1 >= WIDTH as i32 || x1 < 0)
             && (x2 >= WIDTH as i32 || x2 < 0)
@@ -250,30 +201,10 @@ impl Vec3 {
             + self.y * self.y
             + self.z * self.z)
             .sqrt();
+
         self.x /= l;
         self.y /= l;
         self.z /= l;
-    }
-
-    pub fn rotate(&mut self, r: Vec3, fi: f64, axis: u8) {
-        match axis % 3 {
-            0 => {
-                let (y, z) = (self.y - r.y, self.z - r.z);
-                self.z = z * fi.cos() - y * fi.sin() + r.z;
-                self.y = z * fi.sin() + y * fi.cos() + r.y;
-            }
-            1 => {
-                let (x, z) = (self.x - r.x, self.z - r.z);
-                self.x = x * fi.cos() - z * fi.sin() + r.x;
-                self.z = x * fi.sin() + z * fi.cos() + r.z;
-            }
-            2 => {
-                let (x, y) = (self.x - r.x, self.y - r.y);
-                self.y = y * fi.cos() - x * fi.sin() + r.y;
-                self.x = y * fi.sin() + x * fi.cos() + r.x;
-            }
-            _ => println!("Axis error!"),
-        }
     }
 }
 
@@ -287,13 +218,11 @@ pub fn normal(a: &Vec3, b: &Vec3, c: &Vec3) -> Vec3{
         y: b.y - a.y,
         z: b.z - a.z,
     };
-
     let line2 = Vec3 {
         x: c.x - a.x,
         y: c.y - a.y,
         z: c.z - a.z,
     };
-
     let mut normal = Vec3 {
         x: line1.y * line2.z - line1.z * line2.y,
         y: line1.z * line2.x - line1.x * line2.z,
@@ -310,37 +239,18 @@ impl Obj {
         let split = file.split('\n');
 
         for s in split {
-            if match s.split_whitespace().next() {
-                Some(value) => {value}
-                None => {continue}
-            } == "v" {
-                self.mesh.push(Vec3 {
+            match s.split_whitespace().next() {
+                Some("v") => self.mesh.push(Vec3 {
                     x: s.split_whitespace().nth(1).unwrap().parse::<f64>().unwrap() * -1.0,
                     y: s.split_whitespace().nth(2).unwrap().parse::<f64>().unwrap() * -1.0,
                     z: s.split_whitespace().nth(3).unwrap().parse::<f64>().unwrap() + 6.0
-                });
-            }
-            if s.split_whitespace().next().unwrap() == "f" {
-                self.faces.push([
-                    s.split_whitespace()
-                        .nth(1)
-                        .unwrap()
-                        .parse::<usize>()
-                        .unwrap()
-                        - 1,
-                    s.split_whitespace()
-                        .nth(2)
-                        .unwrap()
-                        .parse::<usize>()
-                        .unwrap()
-                        - 1,
-                    s.split_whitespace()
-                        .nth(3)
-                        .unwrap()
-                        .parse::<usize>()
-                        .unwrap()
-                        - 1,
-                ]);
+                }),
+                Some("f") => self.faces.push([
+                    s.split_whitespace().nth(1).unwrap().parse::<usize>().unwrap() - 1,
+                    s.split_whitespace().nth(2).unwrap().parse::<usize>().unwrap() - 1,
+                    s.split_whitespace().nth(3).unwrap().parse::<usize>().unwrap() - 1,
+                ]),
+                _ => ()
             }
         }
     }
