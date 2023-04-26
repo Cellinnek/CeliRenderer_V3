@@ -7,9 +7,7 @@ edition = "2021"
 minifb = "0.24.0"
 
 [profile.release]
-debug-assertions = false
-debug = false
-overflow-checks = false
+codegen-units = 1
 strip = true
 lto = true
 opt-level = 3
