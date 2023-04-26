@@ -60,7 +60,7 @@ pub fn triangle(
 
         let Y1 = (16.0 * y1 as f32) as i32;
         let Y2 = (16.0 * y2 as f32) as i32;
-        let Y3 = (16.0 * y3 as f64) as i32;
+        let Y3 = (16.0 * y3 as f32) as i32;
 
         let X1 = (16.0 * x1 as f32) as i32;
         let X2 = (16.0 * x2 as f32) as i32;
@@ -182,16 +182,16 @@ pub fn triangle(
 }
 
 pub struct Vec3 {
-    pub x: f64,
-    pub y: f64,
-    pub z: f64
+    pub x: f32,
+    pub y: f32,
+    pub z: f32
 }
 
 impl Vec3 {
-    pub fn project(&self, f: f64) -> [i32; 2] {
+    pub fn project(&self, f: f32) -> [i32; 2] {
         [
-            (((self.x * f) / self.z + 1.0) * WIDTH as f64 / 2.0) as i32,
-            (((self.y * f) / self.z + 1.0) * HEIGHT as f64 / 2.0) as i32,
+            (((self.x * f) / self.z + 1.0) * WIDTH as f32 / 2.0) as i32,
+            (((self.y * f) / self.z + 1.0) * HEIGHT as f32 / 2.0) as i32,
         ]
     }
 
@@ -207,9 +207,7 @@ impl Vec3 {
     }
 }
 
-pub fn dot(a: &Vec3, b: &Vec3) -> f64 {a.x * b.x + a.y * b.y + a.z * b.z}
-
-pub struct Obj {pub mesh: Vec<Vec3>, pub faces: Vec<[usize; 3]>, pub projected_mesh: Vec<[i32; 2]>}
+pub fn dot(a: &Vec3, b: &Vec3) -> f32 {a.x * b.x + a.y * b.y + a.z * b.z}
 
 pub fn normal(a: &Vec3, b: &Vec3, c: &Vec3) -> Vec3{
     let line1 = Vec3 {
@@ -232,6 +230,8 @@ pub fn normal(a: &Vec3, b: &Vec3, c: &Vec3) -> Vec3{
     normal
 }
 
+pub struct Obj {pub mesh: Vec<Vec3>, pub faces: Vec<[usize; 3]>, pub projected_mesh: Vec<[i32; 2]>}
+
 impl Obj {
     pub fn load_from_file(&mut self, path: &str) {
         let file = fs::read_to_string(path).unwrap();
@@ -240,9 +240,9 @@ impl Obj {
         for s in split {
             match s.split_whitespace().next() {
                 Some("v") => self.mesh.push(Vec3 {
-                    x: s.split_whitespace().nth(1).unwrap().parse::<f64>().unwrap() * -1.0,
-                    y: s.split_whitespace().nth(2).unwrap().parse::<f64>().unwrap() * -1.0,
-                    z: s.split_whitespace().nth(3).unwrap().parse::<f64>().unwrap() + 6.0
+                    x: s.split_whitespace().nth(1).unwrap().parse::<f32>().unwrap() * -1.0,
+                    y: s.split_whitespace().nth(2).unwrap().parse::<f32>().unwrap() * -1.0,
+                    z: s.split_whitespace().nth(3).unwrap().parse::<f32>().unwrap() + 6.0
                 }),
                 Some("f") => self.faces.push([
                     s.split_whitespace().nth(1).unwrap().parse::<usize>().unwrap() - 1,
@@ -254,7 +254,7 @@ impl Obj {
         }
     }
 
-    pub fn rotate(&mut self, r: Vec3, fi: f64, axis: u8) {
+    pub fn rotate(&mut self, r: Vec3, fi: f32, axis: u8) {
         match axis % 3 {
             0 => {
                 for i in &mut self.mesh {

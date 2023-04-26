@@ -7,7 +7,7 @@ use minifb::{Scale, Window, WindowOptions};
 
 const WIDTH: usize = 800;
 const HEIGHT: usize = 800;
-const FOV: f64 = 2.0;
+const FOV: f32 = 2.0;
 
 mod functions;
 use functions::*;
