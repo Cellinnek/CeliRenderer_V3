@@ -67,7 +67,11 @@ fn main() {
 
                 let dp = ((200.0
                     * dot(&normal, &light_direction)) as u32
-                     + 30) * 0x010101;
+                     + 25) * 0x010101;
+
+                /*let dp = ((150.0
+                    * dot(&normal, &light_direction)) as u32
+                    + (50.0 * (2.0 - cube.projected_mesh[i[0]][1] as f32/300.0)) as u32) * 0x010101;*/ // <- gradient uuu aaa
 
                 triangle(&mut buffer, cube.projected_mesh[i[0]], cube.projected_mesh[i[1]], cube.projected_mesh[i[2]], dp);
             }
