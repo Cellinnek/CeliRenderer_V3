@@ -13,6 +13,8 @@ mod functions;
 use functions::*;
 
 fn main() {
+    let mut fi = 0.0;
+
     let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
     let mut cube = Obj {
         mesh: vec![],
@@ -32,30 +34,39 @@ fn main() {
     window.set_position(360, 0);
     /*window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));*/
 
-    while window.is_open() {
-        cube.faces.sort_unstable_by(|x, y|
-            ((cube.mesh[y[0]].z + cube.mesh[y[1]].z + cube.mesh[y[2]].z) / 3.0)
-                .partial_cmp(&((cube.mesh[x[0]].z + cube.mesh[x[1]].z + cube.mesh[x[2]].z) / 3.0))
-                .unwrap()
-        );
+    let mut triangles:Vec<Triangle> = vec![];
 
-        cube.rotate(Vec3 {
-            x: 0.0,
-            y: 0.0,
-            z: 6.0,
-        }, 0.005, 1);
+    while window.is_open() {
+        fi += 0.005;
 
         for i in &cube.faces {
-            let normal = normal(&cube.mesh[i[0]],&cube.mesh[i[1]],&cube.mesh[i[2]]);
-            if (dot(&normal,&cube.mesh[i[0]])) < 0.0 {
+            let vertex1 = cube.mesh[i[0]].rotate(Vec3 {
+                x: 0.0,
+                y: 0.0,
+                z: 6.0,
+            }, fi, 1);
+            let vertex2 = cube.mesh[i[1]].rotate(Vec3 {
+                x: 0.0,
+                y: 0.0,
+                z: 6.0,
+            }, fi, 1);
+            let vertex3 = cube.mesh[i[2]].rotate(Vec3 {
+                x: 0.0,
+                y: 0.0,
+                z: 6.0,
+            }, fi, 1);
+
+            let normal = normal(&vertex1,&vertex2,&vertex3);
+
+            if (dot(&normal,&vertex1)) < 0.0 {
                 if cube.projected_mesh[i[0]] == [0,0] {
-                    cube.projected_mesh[i[0]] = cube.mesh[i[0]].project(FOV);
+                    cube.projected_mesh[i[0]] = vertex1.project(FOV);
                 }
                 if cube.projected_mesh[i[1]] == [0,0] {
-                    cube.projected_mesh[i[1]] = cube.mesh[i[1]].project(FOV);
+                    cube.projected_mesh[i[1]] = vertex2.project(FOV);
                 }
                 if cube.projected_mesh[i[2]] == [0,0] {
-                    cube.projected_mesh[i[2]] = cube.mesh[i[2]].project(FOV);
+                    cube.projected_mesh[i[2]] = vertex3.project(FOV);
                 }
 
                 let mut light_direction = Vec3 {
@@ -73,9 +84,22 @@ fn main() {
                     * dot(&normal, &light_direction)) as u32
                     + (50.0 * (2.0 - cube.projected_mesh[i[0]][1] as f32/300.0)) as u32) * 0x010101;*/ // <- gradient uuu aaa
 
-                triangle(&mut buffer, cube.projected_mesh[i[0]], cube.projected_mesh[i[1]], cube.projected_mesh[i[2]], dp);
+                triangles.push(Triangle{
+                    a: cube.projected_mesh[i[0]],
+                    b: cube.projected_mesh[i[1]],
+                    c: cube.projected_mesh[i[2]],
+                    depth: (vertex1.z + vertex2.z + vertex3.z) / 3.0,
+                    color: dp
+                });
+
             }
         }
+
+        triangles.sort_unstable_by(|y, x| x.depth.partial_cmp(&y.depth).unwrap());
+
+        for i in &triangles {i.draw(&mut buffer); }
+
+        triangles.clear();
 
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap(); //.expect("Oops!");
 

@@ -205,6 +205,40 @@ impl Vec3 {
         self.y /= l;
         self.z /= l;
     }
+
+    pub fn rotate (&mut self, r: Vec3, fi: f32, axis: u8) -> Vec3{
+        match axis % 3 {
+            0 => {
+                let (y, z) = (self.y - r.y, self.z - r.y);
+                Vec3{
+                    x: self.x,
+                    y: z * fi.sin() + y * fi.cos() + r.y,
+                    z: z * fi.cos() - y * fi.sin() + r.z,
+                }
+            }
+            1 => {
+                let (x, z) = (self.x - r.x, self.z - r.z);
+                Vec3{
+                    x: x * fi.cos() - z * fi.sin() + r.x,
+                    y: self.y,
+                    z: x * fi.sin() + z * fi.cos() + r.z,
+                }
+            }
+            2 => {
+                let (x, y) = (self.x - r.x, self.y - r.y);
+                Vec3{
+                    x: y * fi.sin() + x * fi.cos() + r.x,
+                    y: y * fi.cos() - x * fi.sin() + r.y,
+                    z: self.z,
+                }
+            }
+            _ => Vec3{
+                x: self.x,
+                y: self.y,
+                z: self.z,
+            },
+        }
+    }
 }
 
 pub fn dot(a: &Vec3, b: &Vec3) -> f32 {a.x * b.x + a.y * b.y + a.z * b.z}
@@ -279,5 +313,20 @@ impl Obj {
             }
             _ => println!("Axis error!"),
         }
+    }
+}
+
+#[derive(Clone)]
+pub struct  Triangle{
+    pub a: [i32;2],
+    pub b: [i32;2],
+    pub c: [i32;2],
+    pub depth: f32,
+    pub color: u32,
+}
+
+impl Triangle{
+    pub fn draw(&self, buffer: &mut [u32]){
+        triangle(buffer, self.a, self.b, self.c, self.color);
     }
 }
