@@ -97,14 +97,17 @@ fn main() {
 
         triangles.sort_unstable_by(|y, x| x.depth.partial_cmp(&y.depth).unwrap());
 
-        for i in &triangles {i.draw(&mut buffer); }
-
-        triangles.clear();
+        for i in &triangles {
+            if i.depth > 0.0 {
+                i.draw_face(&mut buffer);
+            }
+        }
 
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap(); //.expect("Oops!");
 
         cube.projected_mesh.clear();
         cube.projected_mesh.resize(cube.mesh.len(), [0,0]);
+        triangles.clear();
         buffer.clear();
         buffer.resize(WIDTH * HEIGHT, 0);
     }

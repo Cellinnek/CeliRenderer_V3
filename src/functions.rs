@@ -2,7 +2,8 @@ use crate::HEIGHT;
 use crate::WIDTH;
 use std::fs;
 
-/*pub fn line(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], color: u32) {
+#[allow(dead_code)]
+pub fn line(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], color: u32) {
     let mut x = x1;
     let mut y = y1;
 
@@ -35,7 +36,7 @@ use std::fs;
             y += sy;
         }
     }
-}*/
+}
 
 #[allow(non_snake_case)]
 pub fn triangle(
@@ -44,44 +45,45 @@ pub fn triangle(
     [x2, y2]: [i32; 2],
     [x3, y3]: [i32; 2],
     color: u32) {
+
+    if (x1 >= WIDTH as i32 || x1 < 0)
+        && (x2 >= WIDTH as i32 || x2 < 0)
+        && (x3 >= WIDTH as i32 || x3 < 0)
+    {
+        return;
+    }
+    if (y1 >= HEIGHT as i32 || y1 < 0)
+        && (y2 >= HEIGHT as i32 || y2 < 0)
+        && (y3 >= HEIGHT as i32 || y3 < 0)
+    {
+        return;
+    }
+
+    let Y1 = (16.0 * y1 as f32) as i32;
+    let Y2 = (16.0 * y2 as f32) as i32;
+    let Y3 = (16.0 * y3 as f32) as i32;
+
+    let X1 = (16.0 * x1 as f32) as i32;
+    let X2 = (16.0 * x2 as f32) as i32;
+    let X3 = (16.0 * x3 as f32) as i32;
+
+    let DX12 = X1 - X2;
+    let DX23 = X2 - X3;
+    let DX31 = X3 - X1;
+
+    let DY12 = Y1 - Y2;
+    let DY23 = Y2 - Y3;
+    let DY31 = Y3 - Y1;
+
+    let FDX12 = DX12 << 4;
+    let FDX23 = DX23 << 4;
+    let FDX31 = DX31 << 4;
+
+    let FDY12 = DY12 << 4;
+    let FDY23 = DY23 << 4;
+    let FDY31 = DY31 << 4;
+
     unsafe {
-        if (x1 >= WIDTH as i32 || x1 < 0)
-            && (x2 >= WIDTH as i32 || x2 < 0)
-            && (x3 >= WIDTH as i32 || x3 < 0)
-        {
-            return;
-        }
-        if (y1 >= HEIGHT as i32 || y1 < 0)
-            && (y2 >= HEIGHT as i32 || y2 < 0)
-            && (y3 >= HEIGHT as i32 || y3 < 0)
-        {
-            return;
-        }
-
-        let Y1 = (16.0 * y1 as f32) as i32;
-        let Y2 = (16.0 * y2 as f32) as i32;
-        let Y3 = (16.0 * y3 as f32) as i32;
-
-        let X1 = (16.0 * x1 as f32) as i32;
-        let X2 = (16.0 * x2 as f32) as i32;
-        let X3 = (16.0 * x3 as f32) as i32;
-
-        let DX12 = X1 - X2;
-        let DX23 = X2 - X3;
-        let DX31 = X3 - X1;
-
-        let DY12 = Y1 - Y2;
-        let DY23 = Y2 - Y3;
-        let DY31 = Y3 - Y1;
-
-        let FDX12 = DX12 << 4;
-        let FDX23 = DX23 << 4;
-        let FDX31 = DX31 << 4;
-
-        let FDY12 = DY12 << 4;
-        let FDY23 = DY23 << 4;
-        let FDY31 = DY31 << 4;
-
         let mut minx = (*[X1, X2, X3].iter().min().unwrap_unchecked() + 0xF) >> 4;
         let maxx = (*[X1, X2, X3].iter().max().unwrap_unchecked() + 0xF) >> 4;
         let mut miny = (*[Y1, Y2, Y3].iter().min().unwrap_unchecked() + 0xF) >> 4;
@@ -287,33 +289,6 @@ impl Obj {
             }
         }
     }
-
-    pub fn rotate(&mut self, r: Vec3, fi: f32, axis: u8) {
-        match axis % 3 {
-            0 => {
-                for i in &mut self.mesh {
-                    let (y, z) = (i.y - r.y, i.z - r.z);
-                    i.z = z * fi.cos() - y * fi.sin() + r.z;
-                    i.y = z * fi.sin() + y * fi.cos() + r.y;
-                }
-            }
-            1 => {
-                for i in &mut self.mesh {
-                    let (x, z) = (i.x - r.x, i.z - r.z);
-                    i.x = x * fi.cos() - z * fi.sin() + r.x;
-                    i.z = x * fi.sin() + z * fi.cos() + r.z;
-                }
-            }
-            2 => {
-                for i in &mut self.mesh {
-                    let (x, y) = (i.x - r.x, i.y - r.y);
-                    i.y = y * fi.cos() - x * fi.sin() + r.y;
-                    i.x = y * fi.sin() + x * fi.cos() + r.x;
-                }
-            }
-            _ => println!("Axis error!"),
-        }
-    }
 }
 
 #[derive(Clone)]
@@ -326,7 +301,14 @@ pub struct  Triangle{
 }
 
 impl Triangle{
-    pub fn draw(&self, buffer: &mut [u32]){
+    pub fn draw_face(&self, buffer: &mut [u32]){
         triangle(buffer, self.a, self.b, self.c, self.color);
+    }
+
+    #[allow(dead_code)]
+    pub fn draw_edges(&self, buffer: &mut [u32]){
+        line(buffer, self.a, self.b, self.color);
+        line(buffer, self.b, self.c, self.color);
+        line(buffer, self.c, self.a, self.color);
     }
 }
