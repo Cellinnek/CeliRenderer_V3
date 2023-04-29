@@ -303,14 +303,14 @@ pub struct  Triangle{
 }
 
 impl Triangle{
-    pub fn draw_face(&self, buffer: &mut [u32]){
-        triangle(buffer, self.a, self.b, self.c, self.color);
+    pub fn draw_face(&self, buffer: &mut [u32], color: u32){
+        triangle(buffer, self.a, self.b, self.c, color);
     }
 
     #[allow(dead_code)]
-    pub fn draw_edges(&self, buffer: &mut [u32]){
-        line(buffer, self.a, self.b, self.color);
-        line(buffer, self.b, self.c, self.color);
-        line(buffer, self.c, self.a, self.color);
+    pub fn draw_edges(&self, buffer: &mut [u32], color: u32){
+        line(buffer, self.a, self.b, color);
+        line(buffer, self.b, self.c, color);
+        line(buffer, self.c, self.a, color);
     }
 }

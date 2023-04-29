@@ -39,35 +39,34 @@ fn main() {
         let mut rotated = vec![Vec3{
             x: 0.0,
             y: 0.0,
-            z: -10.0,
+            z: 0.0,
         }; cube.mesh.len()];
         cube.projected_mesh = vec![[0,0]; cube.mesh.len()];
 
         fi += 0.005;
 
         for i in &cube.faces {
-            if rotated[i[0]].z == -10.0 {
+            if rotated[i[0]].z == 0.0 {
                 rotated[i[0]] = cube.mesh[i[0]].rotate(Vec3 {
                     x: 0.0,
                     y: 0.0,
                     z: 6.0,
                 }, fi, 1);
             }
-            if rotated[i[1]].z == -10.0 {
+            if rotated[i[1]].z == 0.0 {
                 rotated[i[1]] = cube.mesh[i[1]].rotate(Vec3 {
                     x: 0.0,
                     y: 0.0,
                     z: 6.0,
                 }, fi, 1);
             }
-            if rotated[i[2]].z == -10.0 {
+            if rotated[i[2]].z == 0.0 {
                 rotated[i[2]] = cube.mesh[i[2]].rotate(Vec3 {
                     x: 0.0,
                     y: 0.0,
                     z: 6.0,
                 }, fi, 1);
             }
-
 
             let normal = normal(&rotated[i[0]],&rotated[i[1]],&rotated[i[2]]);
 
@@ -101,10 +100,9 @@ fn main() {
                     a: cube.projected_mesh[i[0]],
                     b: cube.projected_mesh[i[1]],
                     c: cube.projected_mesh[i[2]],
-                    depth: (rotated[i[0]].z + rotated[i[1]].z + rotated[i[2]].z) / 3.0,
+                    depth: (rotated[i[2]].z + rotated[i[2]].z + rotated[i[2]].z) / 3.0,
                     color: dp
                 });
-
             }
         }
 
@@ -112,7 +110,7 @@ fn main() {
 
         for i in &triangles {
             if i.depth > 0.0 {
-                i.draw_face(&mut buffer);
+                i.draw_face(&mut buffer, i.color);
             }
         }
 
