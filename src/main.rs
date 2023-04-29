@@ -15,7 +15,6 @@ use functions::*;
 fn main() {
     let mut fi = 0.0;
 
-    let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
     let mut cube = Obj {
         mesh: vec![],
         faces: vec![],
@@ -23,7 +22,7 @@ fn main() {
     };
 
     cube.load_from_file("C:/Users/Cysie/CLionProjects/Renderer_V3/src/monke.obj");
-    cube.projected_mesh = vec![[0,0]; cube.mesh.len()];
+
 
     let mut window = Window::new("Renderer", WIDTH, HEIGHT, WindowOptions{
         scale: Scale::X1,
@@ -34,9 +33,11 @@ fn main() {
     window.set_position(360, 0);
     /*window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));*/
 
-    let mut triangles:Vec<Triangle> = vec![];
-
     while window.is_open() {
+        let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
+        let mut triangles:Vec<Triangle> = vec![];
+        cube.projected_mesh = vec![[0,0]; cube.mesh.len()];
+
         fi += 0.005;
 
         for i in &cube.faces {
@@ -104,11 +105,5 @@ fn main() {
         }
 
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap(); //.expect("Oops!");
-
-        cube.projected_mesh.clear();
-        cube.projected_mesh.resize(cube.mesh.len(), [0,0]);
-        triangles.clear();
-        buffer.clear();
-        buffer.resize(WIDTH * HEIGHT, 0);
     }
 }

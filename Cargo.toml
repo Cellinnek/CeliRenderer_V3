@@ -12,3 +12,10 @@ strip = true
 lto = true
 opt-level = 3
 panic = "abort"
+
+[profile.dev]
+codegen-units = 1
+strip = true
+lto = true
+opt-level = 3
+panic = "abort"
