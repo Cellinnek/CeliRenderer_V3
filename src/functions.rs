@@ -44,8 +44,8 @@ pub fn triangle(
     [x1, y1]: [i32; 2],
     [x2, y2]: [i32; 2],
     [x3, y3]: [i32; 2],
-    color: u32) {
-
+    color: u32)
+{
     if (x1 >= WIDTH as i32 || x1 < 0)
         && (x2 >= WIDTH as i32 || x2 < 0)
         && (x3 >= WIDTH as i32 || x3 < 0)
@@ -183,11 +183,13 @@ pub fn triangle(
     }
 }
 
+#[derive(Clone)]
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,
     pub z: f32
 }
+
 
 impl Vec3 {
     pub fn project(&self, f: f32) -> [i32; 2] {

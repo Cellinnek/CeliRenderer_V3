@@ -36,38 +36,50 @@ fn main() {
     while window.is_open() {
         let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
         let mut triangles:Vec<Triangle> = vec![];
+        let mut rotated = vec![Vec3{
+            x: 0.0,
+            y: 0.0,
+            z: -10.0,
+        }; cube.mesh.len()];
         cube.projected_mesh = vec![[0,0]; cube.mesh.len()];
 
         fi += 0.005;
 
         for i in &cube.faces {
-            let vertex1 = cube.mesh[i[0]].rotate(Vec3 {
-                x: 0.0,
-                y: 0.0,
-                z: 6.0,
-            }, fi, 1);
-            let vertex2 = cube.mesh[i[1]].rotate(Vec3 {
-                x: 0.0,
-                y: 0.0,
-                z: 6.0,
-            }, fi, 1);
-            let vertex3 = cube.mesh[i[2]].rotate(Vec3 {
-                x: 0.0,
-                y: 0.0,
-                z: 6.0,
-            }, fi, 1);
+            if rotated[i[0]].z == -10.0 {
+                rotated[i[0]] = cube.mesh[i[0]].rotate(Vec3 {
+                    x: 0.0,
+                    y: 0.0,
+                    z: 6.0,
+                }, fi, 1);
+            }
+            if rotated[i[1]].z == -10.0 {
+                rotated[i[1]] = cube.mesh[i[1]].rotate(Vec3 {
+                    x: 0.0,
+                    y: 0.0,
+                    z: 6.0,
+                }, fi, 1);
+            }
+            if rotated[i[2]].z == -10.0 {
+                rotated[i[2]] = cube.mesh[i[2]].rotate(Vec3 {
+                    x: 0.0,
+                    y: 0.0,
+                    z: 6.0,
+                }, fi, 1);
+            }
 
-            let normal = normal(&vertex1,&vertex2,&vertex3);
 
-            if (dot(&normal,&vertex1)) < 0.0 {
+            let normal = normal(&rotated[i[0]],&rotated[i[1]],&rotated[i[2]]);
+
+            if (dot(&normal,&rotated[i[0]])) < 0.0 {
                 if cube.projected_mesh[i[0]] == [0,0] {
-                    cube.projected_mesh[i[0]] = vertex1.project(FOV);
+                    cube.projected_mesh[i[0]] = rotated[i[0]].project(FOV);
                 }
                 if cube.projected_mesh[i[1]] == [0,0] {
-                    cube.projected_mesh[i[1]] = vertex2.project(FOV);
+                    cube.projected_mesh[i[1]] = rotated[i[1]].project(FOV);
                 }
                 if cube.projected_mesh[i[2]] == [0,0] {
-                    cube.projected_mesh[i[2]] = vertex3.project(FOV);
+                    cube.projected_mesh[i[2]] = rotated[i[2]].project(FOV);
                 }
 
                 let mut light_direction = Vec3 {
@@ -89,7 +101,7 @@ fn main() {
                     a: cube.projected_mesh[i[0]],
                     b: cube.projected_mesh[i[1]],
                     c: cube.projected_mesh[i[2]],
-                    depth: (vertex1.z + vertex2.z + vertex3.z) / 3.0,
+                    depth: (rotated[i[0]].z + rotated[i[1]].z + rotated[i[2]].z) / 3.0,
                     color: dp
                 });
 
