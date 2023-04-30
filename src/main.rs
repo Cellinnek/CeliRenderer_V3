@@ -20,6 +20,7 @@ fn main() {
         y: 0.0,
         z: 0.0,
     };
+
     let mut fi:f32 = 0.0;
     let mut di:f32 = 0.0;
 
@@ -92,20 +93,18 @@ fn main() {
             }
         }
 
-
-
         for i in &cube.faces {
             if rotated[i[0]].z == 0.0 {
                 rotated[i[0]] = cube.mesh[i[0]].rotate(Vec3 {
                     x: camera.x,
                     y: camera.y,
                     z: camera.z,
-                }, fi, 1);
-                rotated[i[0]] = rotated[i[0]].rotate(Vec3 {
+                }, fi, 1).rotate(Vec3 {
                     x: camera.x,
                     y: camera.y,
                     z: camera.z,
                 }, di, 0);
+
                 rotated[i[0]].x -= camera.x;
                 rotated[i[0]].y -= camera.y;
                 rotated[i[0]].z -= camera.z;
@@ -115,12 +114,12 @@ fn main() {
                     x: camera.x,
                     y: camera.y,
                     z: camera.z,
-                }, fi, 1);
-                rotated[i[1]] = rotated[i[1]].rotate(Vec3 {
+                }, fi, 1).rotate(Vec3 {
                     x: camera.x,
                     y: camera.y,
                     z: camera.z,
                 }, di, 0);
+
                 rotated[i[1]].x -= camera.x;
                 rotated[i[1]].y -= camera.y;
                 rotated[i[1]].z -= camera.z;
@@ -130,12 +129,12 @@ fn main() {
                     x: camera.x,
                     y: camera.y,
                     z: camera.z,
-                }, fi, 1);
-                rotated[i[2]] = rotated[i[2]].rotate(Vec3 {
+                }, fi, 1).rotate(Vec3 {
                     x: camera.x,
                     y: camera.y,
                     z: camera.z,
                 }, di, 0);
+
                 rotated[i[2]].x -= camera.x;
                 rotated[i[2]].y -= camera.y;
                 rotated[i[2]].z -= camera.z;
@@ -170,7 +169,7 @@ fn main() {
                     x: 0.0,
                     y: 0.0,
                     z: 0.0,
-                }, di, 2);
+                }, di, 0);
 
                 let dp = ((200.0
                     * dot(&normal, &light_direction)) as u32

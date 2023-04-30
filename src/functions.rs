@@ -213,7 +213,7 @@ impl Vec3 {
     pub fn rotate (&mut self, r: Vec3, fi: f32, axis: u8) -> Vec3{
         match axis % 3 {
             0 => {
-                let (y, z) = (self.y - r.y, self.z - r.y);
+                let (y, z) = (self.y - r.y, self.z - r.z);
                 Vec3{
                     x: self.x,
                     y: z * fi.sin() + y * fi.cos() + r.y,
