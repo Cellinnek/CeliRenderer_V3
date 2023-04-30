@@ -5,7 +5,7 @@ use std::f32::consts::PI;
 static A: System = System;
 extern crate core;
 
-use minifb::{Key, Scale, Window, WindowOptions};
+use minifb::{Key, MouseMode, Scale, Window, WindowOptions};
 
 const WIDTH: usize = 800;
 const HEIGHT: usize = 800;
@@ -21,6 +21,7 @@ fn main() {
         z: 0.0,
     };
     let mut fi:f32 = 0.0;
+    let mut di:f32 = 0.0;
 
     let mut cube = Obj {
         mesh: vec![],
@@ -80,6 +81,12 @@ fn main() {
                 Key::E => {
                     fi += 0.005;
                 }
+                Key::Up => {
+                    di -= 0.005;
+                }
+                Key::Down => {
+                    di += 0.005;
+                }
                 _ => ()
 
             }
@@ -94,6 +101,11 @@ fn main() {
                     y: camera.y,
                     z: camera.z,
                 }, fi, 1);
+                rotated[i[0]] = rotated[i[0]].rotate(Vec3 {
+                    x: camera.x,
+                    y: camera.y,
+                    z: camera.z,
+                }, di, 0);
                 rotated[i[0]].x -= camera.x;
                 rotated[i[0]].y -= camera.y;
                 rotated[i[0]].z -= camera.z;
@@ -104,6 +116,11 @@ fn main() {
                     y: camera.y,
                     z: camera.z,
                 }, fi, 1);
+                rotated[i[1]] = rotated[i[1]].rotate(Vec3 {
+                    x: camera.x,
+                    y: camera.y,
+                    z: camera.z,
+                }, di, 0);
                 rotated[i[1]].x -= camera.x;
                 rotated[i[1]].y -= camera.y;
                 rotated[i[1]].z -= camera.z;
@@ -114,6 +131,11 @@ fn main() {
                     y: camera.y,
                     z: camera.z,
                 }, fi, 1);
+                rotated[i[2]] = rotated[i[2]].rotate(Vec3 {
+                    x: camera.x,
+                    y: camera.y,
+                    z: camera.z,
+                }, di, 0);
                 rotated[i[2]].x -= camera.x;
                 rotated[i[2]].y -= camera.y;
                 rotated[i[2]].z -= camera.z;
@@ -138,11 +160,17 @@ fn main() {
                     z: -1.0,
                 };
                 light_direction.normalise();
+
                 light_direction = light_direction.rotate(Vec3 {
                     x: 0.0,
                     y: 0.0,
                     z: 0.0,
                 }, fi, 1);
+                light_direction = light_direction.rotate(Vec3 {
+                    x: 0.0,
+                    y: 0.0,
+                    z: 0.0,
+                }, di, 2);
 
                 let dp = ((200.0
                     * dot(&normal, &light_direction)) as u32
