@@ -1,11 +1,10 @@
 use std::alloc::System;
-use std::f32::consts::PI;
 
 #[global_allocator]
 static A: System = System;
 extern crate core;
 
-use minifb::{Key, MouseMode, Scale, Window, WindowOptions};
+use minifb::{Key, Scale, Window, WindowOptions};
 
 const WIDTH: usize = 800;
 const HEIGHT: usize = 800;
@@ -30,7 +29,7 @@ fn main() {
         projected_mesh: vec![]
     };
 
-    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/monke.obj");
+    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/pot.obj");
 
     let mut window = Window::new("Renderer", WIDTH, HEIGHT, WindowOptions{
         scale: Scale::X1,
@@ -41,8 +40,6 @@ fn main() {
 
     window.set_position(360, 0);
     /*window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));*/
-    let mut mx = window.get_mouse_pos(MouseMode::Pass).unwrap().0 + 400.0;
-    let mut my = window.get_mouse_pos(MouseMode::Pass).unwrap().1 + 400.0;
 
     while window.is_open() {
         let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
@@ -53,9 +50,6 @@ fn main() {
             z: 0.0,
         }; cube.mesh.len()];
         cube.projected_mesh = vec![[0,0]; cube.mesh.len()];
-
-        mx -= window.get_mouse_pos(MouseMode::Pass).unwrap().0;
-        my -= window.get_mouse_pos(MouseMode::Pass).unwrap().1;
 
         for i in window.get_keys() {
             match i {
@@ -81,17 +75,17 @@ fn main() {
                 Key::LeftShift => {
                     camera.y += 0.01;
                 }
-                Key::Q => {
+                Key::Left => {
                     fi -= 0.005;
                 }
-                Key::E => {
+                Key::Right => {
                     fi += 0.005;
                 }
                 Key::Up => {
-                    di -= 0.005;
+                    di += 0.005;
                 }
                 Key::Down => {
-                    di += 0.005;
+                    di -= 0.005;
                 }
                 _ => ()
 
@@ -145,7 +139,7 @@ fn main() {
                 rotated[i[2]].z -= camera.z;
             }
 
-            let mut normal = normal(&rotated[i[0]],&rotated[i[1]],&rotated[i[2]]);
+            let normal = normal(&rotated[i[0]],&rotated[i[1]],&rotated[i[2]]);
 
             if (dot(&normal,&rotated[i[0]])) < 0.0 {
                 if cube.projected_mesh[i[0]] == [0,0] {
@@ -159,7 +153,7 @@ fn main() {
                 }
 
                 let mut light_direction = Vec3 {
-                    x: 1.5,
+                    x: -1.5,
                     y: -1.5,
                     z: -1.0,
                 };
@@ -202,9 +196,6 @@ fn main() {
             }
         }
 
-        fi += (mx)/300.0;
-        di += (my)/300.0;
-        (mx, my) = window.get_mouse_pos(MouseMode::Pass).unwrap();
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap(); //.expect("Oops!");
     }
 }
