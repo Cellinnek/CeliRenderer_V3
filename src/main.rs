@@ -38,9 +38,12 @@ fn main() {
     }
     ).unwrap();
 
+
     window.set_position(360, 0);
     /*window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));*/
-    window.set_background_color(0, 0, 20);
+    let mut mx = window.get_mouse_pos(MouseMode::Pass).unwrap().0 + 400.0;
+    let mut my = window.get_mouse_pos(MouseMode::Pass).unwrap().1 + 400.0;
+
     while window.is_open() {
         let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
         let mut triangles:Vec<Triangle> = vec![];
@@ -51,6 +54,8 @@ fn main() {
         }; cube.mesh.len()];
         cube.projected_mesh = vec![[0,0]; cube.mesh.len()];
 
+        mx -= window.get_mouse_pos(MouseMode::Pass).unwrap().0;
+        my -= window.get_mouse_pos(MouseMode::Pass).unwrap().1;
 
         for i in window.get_keys() {
             match i {
@@ -197,6 +202,9 @@ fn main() {
             }
         }
 
+        fi += (mx)/300.0;
+        di += (my)/300.0;
+        (mx, my) = window.get_mouse_pos(MouseMode::Pass).unwrap();
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap(); //.expect("Oops!");
     }
 }
