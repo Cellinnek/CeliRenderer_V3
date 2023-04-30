@@ -1,9 +1,11 @@
 use std::alloc::System;
+use std::f32::consts::PI;
+
 #[global_allocator]
 static A: System = System;
 extern crate core;
 
-use minifb::{Scale, Window, WindowOptions};
+use minifb::{Key, Scale, Window, WindowOptions};
 
 const WIDTH: usize = 800;
 const HEIGHT: usize = 800;
@@ -13,7 +15,12 @@ mod functions;
 use functions::*;
 
 fn main() {
-    let mut fi = 0.0;
+    let mut camera = Camera{
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+    };
+    let mut fi:f32 = 0.0;
 
     let mut cube = Obj {
         mesh: vec![],
@@ -31,7 +38,7 @@ fn main() {
 
     window.set_position(360, 0);
     /*window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));*/
-
+    window.set_background_color(0, 0, 20);
     while window.is_open() {
         let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
         let mut triangles:Vec<Triangle> = vec![];
@@ -42,32 +49,77 @@ fn main() {
         }; cube.mesh.len()];
         cube.projected_mesh = vec![[0,0]; cube.mesh.len()];
 
-        fi += 0.005;
+
+        for i in window.get_keys() {
+            match i {
+                Key::W => {
+                    camera.x += 0.01 * fi.sin();
+                    camera.z += 0.01 * fi.cos();
+                }
+                Key::S => {
+                    camera.x -= 0.01 * fi.sin();
+                    camera.z -= 0.01 * fi.cos();
+                }
+                Key::D => {
+                    camera.x += 0.01 * fi.cos();
+                    camera.z -= 0.01 * fi.sin();
+                }
+                Key::A => {
+                    camera.x -= 0.01 * fi.cos();
+                    camera.z += 0.01 * fi.sin();
+                }
+                Key::Space => {
+                    camera.y -= 0.01;
+                }
+                Key::LeftShift => {
+                    camera.y += 0.01;
+                }
+                Key::Q => {
+                    fi -= 0.005;
+                }
+                Key::E => {
+                    fi += 0.005;
+                }
+                _ => ()
+
+            }
+        }
+
+
 
         for i in &cube.faces {
             if rotated[i[0]].z == 0.0 {
                 rotated[i[0]] = cube.mesh[i[0]].rotate(Vec3 {
-                    x: 0.0,
-                    y: 0.0,
-                    z: 6.0,
+                    x: camera.x,
+                    y: camera.y,
+                    z: camera.z,
                 }, fi, 1);
+                rotated[i[0]].x -= camera.x;
+                rotated[i[0]].y -= camera.y;
+                rotated[i[0]].z -= camera.z;
             }
             if rotated[i[1]].z == 0.0 {
                 rotated[i[1]] = cube.mesh[i[1]].rotate(Vec3 {
-                    x: 0.0,
-                    y: 0.0,
-                    z: 6.0,
+                    x: camera.x,
+                    y: camera.y,
+                    z: camera.z,
                 }, fi, 1);
+                rotated[i[1]].x -= camera.x;
+                rotated[i[1]].y -= camera.y;
+                rotated[i[1]].z -= camera.z;
             }
             if rotated[i[2]].z == 0.0 {
                 rotated[i[2]] = cube.mesh[i[2]].rotate(Vec3 {
-                    x: 0.0,
-                    y: 0.0,
-                    z: 6.0,
+                    x: camera.x,
+                    y: camera.y,
+                    z: camera.z,
                 }, fi, 1);
+                rotated[i[2]].x -= camera.x;
+                rotated[i[2]].y -= camera.y;
+                rotated[i[2]].z -= camera.z;
             }
 
-            let normal = normal(&rotated[i[0]],&rotated[i[1]],&rotated[i[2]]);
+            let mut normal = normal(&rotated[i[0]],&rotated[i[1]],&rotated[i[2]]);
 
             if (dot(&normal,&rotated[i[0]])) < 0.0 {
                 if cube.projected_mesh[i[0]] == [0,0] {
@@ -86,6 +138,11 @@ fn main() {
                     z: -1.0,
                 };
                 light_direction.normalise();
+                light_direction = light_direction.rotate(Vec3 {
+                    x: 0.0,
+                    y: 0.0,
+                    z: 0.0,
+                }, fi, 1);
 
                 let dp = ((200.0
                     * dot(&normal, &light_direction)) as u32

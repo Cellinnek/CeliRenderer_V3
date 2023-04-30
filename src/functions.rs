@@ -314,3 +314,9 @@ impl Triangle{
         line(buffer, self.c, self.a, color);
     }
 }
+
+pub struct Camera{
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+}
