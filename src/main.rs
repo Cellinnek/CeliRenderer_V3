@@ -21,8 +21,7 @@ fn main() {
         projected_mesh: vec![]
     };
 
-    cube.load_from_file("C:/Users/Cysie/CLionProjects/Renderer_V3/src/monke.obj");
-
+    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/monke.obj");
 
     let mut window = Window::new("Renderer", WIDTH, HEIGHT, WindowOptions{
         scale: Scale::X1,
@@ -100,7 +99,7 @@ fn main() {
                     a: cube.projected_mesh[i[0]],
                     b: cube.projected_mesh[i[1]],
                     c: cube.projected_mesh[i[2]],
-                    depth: (rotated[i[2]].z + rotated[i[2]].z + rotated[i[2]].z) / 3.0,
+                    depth: rotated[i[0]].z + rotated[i[1]].z + rotated[i[2]].z,
                     color: dp
                 });
             }
