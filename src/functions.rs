@@ -190,7 +190,6 @@ pub struct Vec3 {
     pub z: f32
 }
 
-
 impl Vec3 {
     pub fn project(&self, f: f32) -> [i32; 2] {
         [

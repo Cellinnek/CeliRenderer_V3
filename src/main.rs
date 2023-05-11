@@ -8,12 +8,12 @@ use minifb::{Key, Scale, Window, WindowOptions};
 
 const WIDTH: usize = 800;
 const HEIGHT: usize = 800;
-const FOV: f32 = 2.0;
 
 mod functions;
 use functions::*;
 
 fn main() {
+    let mut fov: f32 = 2.0;
     let mut camera = Camera{
         x: 0.0,
         y: 0.0,
@@ -29,7 +29,7 @@ fn main() {
         projected_mesh: vec![]
     };
 
-    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/pot.obj");
+    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/monke.obj");
 
     let mut window = Window::new("Renderer", WIDTH, HEIGHT, WindowOptions{
         scale: Scale::X1,
@@ -87,6 +87,12 @@ fn main() {
                 Key::Down => {
                     di -= 0.005;
                 }
+                Key::Q => {
+                    fov *= 0.99;
+                }
+                Key::E => {
+                    fov /= 0.99;
+                }
                 _ => ()
 
             }
@@ -143,13 +149,13 @@ fn main() {
 
             if (dot(&normal,&rotated[i[0]])) < 0.0 {
                 if cube.projected_mesh[i[0]] == [0,0] {
-                    cube.projected_mesh[i[0]] = rotated[i[0]].project(FOV);
+                    cube.projected_mesh[i[0]] = rotated[i[0]].project(fov);
                 }
                 if cube.projected_mesh[i[1]] == [0,0] {
-                    cube.projected_mesh[i[1]] = rotated[i[1]].project(FOV);
+                    cube.projected_mesh[i[1]] = rotated[i[1]].project(fov);
                 }
                 if cube.projected_mesh[i[2]] == [0,0] {
-                    cube.projected_mesh[i[2]] = rotated[i[2]].project(FOV);
+                    cube.projected_mesh[i[2]] = rotated[i[2]].project(fov);
                 }
 
                 let mut light_direction = Vec3 {
