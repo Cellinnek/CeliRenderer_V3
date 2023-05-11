@@ -277,8 +277,8 @@ impl Obj {
         for s in split {
             match s.split_whitespace().next() {
                 Some("v") => self.mesh.push(Vec3 {
-                    x: s.split_whitespace().nth(1).unwrap().parse::<f32>().unwrap() * -1.0,
-                    y: s.split_whitespace().nth(2).unwrap().parse::<f32>().unwrap() * -1.0,
+                    x: s.split_whitespace().nth(1).unwrap().parse::<f32>().unwrap(),
+                    y: s.split_whitespace().nth(2).unwrap().parse::<f32>().unwrap(),
                     z: s.split_whitespace().nth(3).unwrap().parse::<f32>().unwrap() + 6.0
                 }),
                 Some("f") => self.faces.push([

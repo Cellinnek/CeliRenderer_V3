@@ -13,7 +13,7 @@ mod functions;
 use functions::*;
 
 fn main() {
-    let mut fov: f32 = 2.0;
+    let mut fov: f32 = -2.0;
     let mut camera = Camera{
         x: 0.0,
         y: 0.0,
@@ -61,31 +61,31 @@ fn main() {
                     camera.x -= 0.01 * fi.sin();
                     camera.z -= 0.01 * fi.cos();
                 }
-                Key::D => {
+                Key::A => {
                     camera.x += 0.01 * fi.cos();
                     camera.z -= 0.01 * fi.sin();
                 }
-                Key::A => {
+                Key::D => {
                     camera.x -= 0.01 * fi.cos();
                     camera.z += 0.01 * fi.sin();
                 }
                 Key::Space => {
-                    camera.y -= 0.01;
-                }
-                Key::LeftShift => {
                     camera.y += 0.01;
                 }
-                Key::Left => {
-                    fi -= 0.005;
+                Key::LeftShift => {
+                    camera.y -= 0.01;
                 }
-                Key::Right => {
+                Key::Left => {
                     fi += 0.005;
                 }
+                Key::Right => {
+                    fi -= 0.005;
+                }
                 Key::Up => {
-                    di += 0.005;
+                    di -= 0.005;
                 }
                 Key::Down => {
-                    di -= 0.005;
+                    di += 0.005;
                 }
                 Key::Q => {
                     fov *= 0.99;
@@ -159,8 +159,8 @@ fn main() {
                 }
 
                 let mut light_direction = Vec3 {
-                    x: -1.5,
-                    y: -1.5,
+                    x: 1.5,
+                    y: 1.5,
                     z: -1.0,
                 };
                 light_direction.normalise();
