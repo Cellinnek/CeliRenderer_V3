@@ -100,11 +100,16 @@ pub fn triangle(
         let mut miny = (*[Y1, Y2, Y3].iter().min().unwrap_unchecked() + 0xF) >> 4;
         let maxy = (*[Y1, Y2, Y3].iter().max().unwrap_unchecked() + 0xF) >> 4;
 
-        let q = if (maxx - minx) > (maxy - miny) {
+        let mut q = if (maxx - minx) > (maxy - miny) {
             maxx - minx + 1
         } else {
             maxy - miny + 1
         };
+        q |= q >> 8;
+        q |= q >> 4;
+        q |= q >> 2;
+        q |= q >> 1;
+        q ^= q >> 1;
 
         minx &= !(q - 1);
         miny &= !(q - 1);
