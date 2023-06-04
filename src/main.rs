@@ -13,15 +13,15 @@ mod functions;
 use functions::*;
 
 fn main() {
-    let mut fov: f32 = -2.0;
+    let mut fov: f64 = -2.0;
     let mut camera = Camera{
         x: 0.0,
         y: 0.0,
         z: 0.0,
     };
 
-    let mut fi:f32 = 0.0;
-    let mut di:f32 = 0.0;
+    let mut fi:f64 = 0.0;
+    let mut di:f64 = 0.0;
 
     let mut cube = Obj {
         mesh: vec![],
@@ -54,38 +54,38 @@ fn main() {
         for i in window.get_keys() {
             match i {
                 Key::W => {
-                    camera.x += 0.01 * fi.sin();
-                    camera.z += 0.01 * fi.cos();
+                    camera.x += 0.02 * fi.sin();
+                    camera.z += 0.02 * fi.cos();
                 }
                 Key::S => {
-                    camera.x -= 0.01 * fi.sin();
-                    camera.z -= 0.01 * fi.cos();
+                    camera.x -= 0.02 * fi.sin();
+                    camera.z -= 0.02 * fi.cos();
                 }
                 Key::A => {
-                    camera.x += 0.01 * fi.cos();
-                    camera.z -= 0.01 * fi.sin();
+                    camera.x += 0.02 * fi.cos();
+                    camera.z -= 0.02 * fi.sin();
                 }
                 Key::D => {
-                    camera.x -= 0.01 * fi.cos();
-                    camera.z += 0.01 * fi.sin();
+                    camera.x -= 0.02 * fi.cos();
+                    camera.z += 0.02 * fi.sin();
                 }
                 Key::Space => {
-                    camera.y += 0.01;
+                    camera.y += 0.02;
                 }
                 Key::LeftShift => {
-                    camera.y -= 0.01;
+                    camera.y -= 0.02;
                 }
                 Key::Left => {
-                    fi += 0.005;
+                    fi += 0.01;
                 }
                 Key::Right => {
-                    fi -= 0.005;
+                    fi -= 0.01;
                 }
                 Key::Up => {
-                    di -= 0.005;
+                    di -= 0.01;
                 }
                 Key::Down => {
-                    di += 0.005;
+                    di += 0.01;
                 }
                 Key::Q => {
                     fov *= 0.99;
@@ -182,7 +182,7 @@ fn main() {
 
                 /*let dp = ((150.0
                     * dot(&normal, &light_direction)) as u32
-                    + (50.0 * (2.0 - cube.projected_mesh[i[0]][1] as f32/300.0)) as u32) * 0x010101;*/ // <- gradient uuu aaa
+                    + (50.0 * (2.0 - cube.projected_mesh[i[0]][1] as f64/300.0)) as u32) * 0x010101;*/ // <- gradient uuu aaa
 
                 triangles.push(Triangle{
                     a: cube.projected_mesh[i[0]],

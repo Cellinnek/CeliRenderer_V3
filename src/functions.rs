@@ -3,7 +3,18 @@ use crate::WIDTH;
 use std::fs;
 
 #[allow(dead_code)]
-pub fn line(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], color: u32) {
+pub fn line(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], color: u32)
+{
+    if (x1 >= WIDTH as i32 || x1 < 0)
+        && (x2 >= WIDTH as i32 || x2 < 0)
+    {
+        return;
+    }
+    if (y1 >= HEIGHT as i32 || y1 < 0)
+        && (y2 >= HEIGHT as i32 || y2 < 0)
+    {
+        return;
+    }
     let mut x = x1;
     let mut y = y1;
 
@@ -59,13 +70,13 @@ pub fn triangle(
         return;
     }
 
-    let Y1 = (16.0 * y1 as f32) as i32;
-    let Y2 = (16.0 * y2 as f32) as i32;
-    let Y3 = (16.0 * y3 as f32) as i32;
+    let Y1 = (16.0 * y1 as f64) as i32;
+    let Y2 = (16.0 * y2 as f64) as i32;
+    let Y3 = (16.0 * y3 as f64) as i32;
 
-    let X1 = (16.0 * x1 as f32) as i32;
-    let X2 = (16.0 * x2 as f32) as i32;
-    let X3 = (16.0 * x3 as f32) as i32;
+    let X1 = (16.0 * x1 as f64) as i32;
+    let X2 = (16.0 * x2 as f64) as i32;
+    let X3 = (16.0 * x3 as f64) as i32;
 
     let DX12 = X1 - X2;
     let DX23 = X2 - X3;
@@ -185,16 +196,16 @@ pub fn triangle(
 
 #[derive(Clone)]
 pub struct Vec3 {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32
+    pub x: f64,
+    pub y: f64,
+    pub z: f64
 }
 
 impl Vec3 {
-    pub fn project(&self, f: f32) -> [i32; 2] {
+    pub fn project(&self, f: f64) -> [i32; 2] {
         [
-            (((self.x * f) / self.z + 1.0) * WIDTH as f32 / 2.0) as i32,
-            (((self.y * f) / self.z + 1.0) * HEIGHT as f32 / 2.0) as i32,
+            (((self.x * f) / self.z + 1.0) * WIDTH as f64 / 2.0) as i32,
+            (((self.y * f) / self.z + 1.0) * HEIGHT as f64 / 2.0) as i32,
         ]
     }
 
@@ -209,7 +220,7 @@ impl Vec3 {
         self.z /= l;
     }
 
-    pub fn rotate (&mut self, r: Vec3, fi: f32, axis: u8) -> Vec3{
+    pub fn rotate (&mut self, r: Vec3, fi: f64, axis: u8) -> Vec3{
         match axis % 3 {
             0 => {
                 let (y, z) = (self.y - r.y, self.z - r.z);
@@ -244,7 +255,7 @@ impl Vec3 {
     }
 }
 
-pub fn dot(a: &Vec3, b: &Vec3) -> f32 {a.x * b.x + a.y * b.y + a.z * b.z}
+pub fn dot(a: &Vec3, b: &Vec3) -> f64 {a.x * b.x + a.y * b.y + a.z * b.z}
 
 pub fn normal(a: &Vec3, b: &Vec3, c: &Vec3) -> Vec3{
     let line1 = Vec3 {
@@ -277,9 +288,9 @@ impl Obj {
         for s in split {
             match s.split_whitespace().next() {
                 Some("v") => self.mesh.push(Vec3 {
-                    x: s.split_whitespace().nth(1).unwrap().parse::<f32>().unwrap(),
-                    y: s.split_whitespace().nth(2).unwrap().parse::<f32>().unwrap(),
-                    z: s.split_whitespace().nth(3).unwrap().parse::<f32>().unwrap() + 6.0
+                    x: s.split_whitespace().nth(1).unwrap().parse::<f64>().unwrap(),
+                    y: s.split_whitespace().nth(2).unwrap().parse::<f64>().unwrap(),
+                    z: s.split_whitespace().nth(3).unwrap().parse::<f64>().unwrap() + 6.0
                 }),
                 Some("f") => self.faces.push([
                     s.split_whitespace().nth(1).unwrap().parse::<usize>().unwrap() - 1,
@@ -297,7 +308,7 @@ pub struct  Triangle{
     pub a: [i32;2],
     pub b: [i32;2],
     pub c: [i32;2],
-    pub depth: f32,
+    pub depth: f64,
     pub color: u32,
 }
 
@@ -315,7 +326,7 @@ impl Triangle{
 }
 
 pub struct Camera{
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
 }
