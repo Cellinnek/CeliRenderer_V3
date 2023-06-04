@@ -105,6 +105,7 @@ pub fn triangle(
         } else {
             maxy - miny + 1
         };
+        q |= q >> 16;
         q |= q >> 8;
         q |= q >> 4;
         q |= q >> 2;

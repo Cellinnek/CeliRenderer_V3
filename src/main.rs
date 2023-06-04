@@ -54,26 +54,26 @@ fn main() {
         for i in window.get_keys() {
             match i {
                 Key::W => {
-                    camera.x += 0.02 * fi.sin();
-                    camera.z += 0.02 * fi.cos();
+                    camera.x += 0.04 * fi.sin();
+                    camera.z += 0.04 * fi.cos();
                 }
                 Key::S => {
-                    camera.x -= 0.02 * fi.sin();
-                    camera.z -= 0.02 * fi.cos();
+                    camera.x -= 0.04 * fi.sin();
+                    camera.z -= 0.04 * fi.cos();
                 }
                 Key::A => {
-                    camera.x += 0.02 * fi.cos();
-                    camera.z -= 0.02 * fi.sin();
+                    camera.x += 0.04 * fi.cos();
+                    camera.z -= 0.04 * fi.sin();
                 }
                 Key::D => {
-                    camera.x -= 0.02 * fi.cos();
-                    camera.z += 0.02 * fi.sin();
+                    camera.x -= 0.04 * fi.cos();
+                    camera.z += 0.04 * fi.sin();
                 }
                 Key::Space => {
-                    camera.y += 0.02;
+                    camera.y += 0.04;
                 }
                 Key::LeftShift => {
-                    camera.y -= 0.02;
+                    camera.y -= 0.04;
                 }
                 Key::Left => {
                     fi += 0.01;
