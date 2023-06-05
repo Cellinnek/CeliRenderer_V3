@@ -29,14 +29,13 @@ fn main() {
         projected_mesh: vec![]
     };
 
-    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/mountains.obj");
+    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/monke.obj");
 
     let mut window = Window::new("Renderer", WIDTH, HEIGHT, WindowOptions{
         scale: Scale::X1,
         ..WindowOptions::default()
     }
     ).unwrap();
-
 
     window.set_position(360, 0);
     /*window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));*/
@@ -147,7 +146,7 @@ fn main() {
 
             let normal = normal(&rotated[i[0]],&rotated[i[1]],&rotated[i[2]]);
 
-            if (dot(&normal,&rotated[i[0]])) < 0.0 {
+            if ((dot(&normal,&rotated[i[0]])) < 0.0) && (rotated[i[0]].z + rotated[i[1]].z + rotated[i[2]].z) > 0.0{
                 if cube.projected_mesh[i[0]] == [0,0] {
                     cube.projected_mesh[i[0]] = rotated[i[0]].project(fov);
                 }
@@ -197,9 +196,7 @@ fn main() {
         triangles.sort_unstable_by(|y, x| x.depth.partial_cmp(&y.depth).unwrap());
 
         for i in &triangles {
-            if i.depth > 0.0 {
-                i.draw_face(&mut buffer, i.color);
-            }
+            i.draw_face(&mut buffer, i.color);
         }
 
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap(); //.expect("Oops!");

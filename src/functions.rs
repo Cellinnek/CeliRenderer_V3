@@ -70,13 +70,13 @@ pub fn triangle(
         return;
     }
 
-    let Y1 = (16.0 * y1 as f64) as i32;
-    let Y2 = (16.0 * y2 as f64) as i32;
-    let Y3 = (16.0 * y3 as f64) as i32;
+    let X1 = 16 * x1;
+    let X2 = 16 * x2;
+    let X3 = 16 * x3;
 
-    let X1 = (16.0 * x1 as f64) as i32;
-    let X2 = (16.0 * x2 as f64) as i32;
-    let X3 = (16.0 * x3 as f64) as i32;
+    let Y1 = 16 * y1;
+    let Y2 = 16 * y2;
+    let Y3 = 16 * y3;
 
     let DX12 = X1 - X2;
     let DX23 = X2 - X3;
