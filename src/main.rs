@@ -223,6 +223,6 @@ fn main() {
             i.draw_face(&mut buffer, i.color);
         }
 
-        window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap(); //.expect("Oops!");
+        window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
     }
 }

@@ -80,106 +80,104 @@ pub fn triangle(
     let FDY23 = DY23 << 4;
     let FDY31 = DY31 << 4;
 
-    unsafe {
-        let mut minx = (*[X1, X2, X3].iter().min().unwrap_unchecked() + 0xF) >> 4;
-        let maxx = (*[X1, X2, X3].iter().max().unwrap_unchecked() + 0xF) >> 4;
-        let mut miny = (*[Y1, Y2, Y3].iter().min().unwrap_unchecked() + 0xF) >> 4;
-        let maxy = (*[Y1, Y2, Y3].iter().max().unwrap_unchecked() + 0xF) >> 4;
+    let mut minx = (*[X1, X2, X3].iter().min().unwrap() + 0xF) >> 4;
+    let maxx = (*[X1, X2, X3].iter().max().unwrap() + 0xF) >> 4;
+    let mut miny = (*[Y1, Y2, Y3].iter().min().unwrap() + 0xF) >> 4;
+    let maxy = (*[Y1, Y2, Y3].iter().max().unwrap() + 0xF) >> 4;
 
-        let mut q = if (maxx - minx) > (maxy - miny) {
-            maxx - minx + 1
-        } else {
-            maxy - miny + 1
-        };
-        q |= q >> 16;
-        q |= q >> 8;
-        q |= q >> 4;
-        q |= q >> 2;
-        q |= q >> 1;
-        q ^= q >> 1;
+    let mut q = if (maxx - minx) > (maxy - miny) {
+        maxx - minx + 1
+    } else {
+        maxy - miny + 1
+    };
+    q |= q >> 16;
+    q |= q >> 8;
+    q |= q >> 4;
+    q |= q >> 2;
+    q |= q >> 1;
+    q ^= q >> 1;
 
-        minx &= !(q - 1);
-        miny &= !(q - 1);
+    minx &= !(q - 1);
+    miny &= !(q - 1);
 
-        let mut C1 = DY12 * X1 - DX12 * Y1;
-        let mut C2 = DY23 * X2 - DX23 * Y2;
-        let mut C3 = DY31 * X3 - DX31 * Y3;
+    let mut C1 = DY12 * X1 - DX12 * Y1;
+    let mut C2 = DY23 * X2 - DX23 * Y2;
+    let mut C3 = DY31 * X3 - DX31 * Y3;
 
-        if DY12 < 0 || (DY12 == 0 && DX12 > 0) {
-            C1 += 1;
-        }
-        if DY23 < 0 || (DY23 == 0 && DX23 > 0) {
-            C2 += 1;
-        }
-        if DY31 < 0 || (DY31 == 0 && DX31 > 0) {
-            C3 += 1;
-        }
+    if DY12 < 0 || (DY12 == 0 && DX12 > 0) {
+        C1 += 1;
+    }
+    if DY23 < 0 || (DY23 == 0 && DX23 > 0) {
+        C2 += 1;
+    }
+    if DY31 < 0 || (DY31 == 0 && DX31 > 0) {
+        C3 += 1;
+    }
 
-        for y in (miny..maxy).step_by(q as usize) {
-            for x in (minx..maxx).step_by(q as usize) {
-                let x0 = x << 4;
-                let x1 = (x + q - 1) << 4;
-                let y0 = y << 4;
-                let y1 = (y + q - 1) << 4;
+    for y in (miny..maxy).step_by(q as usize) {
+        for x in (minx..maxx).step_by(q as usize) {
+            let x0 = x << 4;
+            let x1 = (x + q - 1) << 4;
+            let y0 = y << 4;
+            let y1 = (y + q - 1) << 4;
 
-                let a00 = (C1 + DX12 * y0 - DY12 * x0 > 0) as u8;
-                let a10 = (C1 + DX12 * y0 - DY12 * x1 > 0) as u8;
-                let a01 = (C1 + DX12 * y1 - DY12 * x0 > 0) as u8;
-                let a11 = (C1 + DX12 * y1 - DY12 * x1 > 0) as u8;
-                let a = a00 | (a10 << 1) | (a01 << 2) | (a11 << 3);
+            let a00 = (C1 + DX12 * y0 - DY12 * x0 > 0) as u8;
+            let a10 = (C1 + DX12 * y0 - DY12 * x1 > 0) as u8;
+            let a01 = (C1 + DX12 * y1 - DY12 * x0 > 0) as u8;
+            let a11 = (C1 + DX12 * y1 - DY12 * x1 > 0) as u8;
+            let a = a00 | (a10 << 1) | (a01 << 2) | (a11 << 3);
 
-                let b00 = (C2 + DX23 * y0 - DY23 * x0 > 0) as u8;
-                let b10 = (C2 + DX23 * y0 - DY23 * x1 > 0) as u8;
-                let b01 = (C2 + DX23 * y1 - DY23 * x0 > 0) as u8;
-                let b11 = (C2 + DX23 * y1 - DY23 * x1 > 0) as u8;
-                let b = b00 | (b10 << 1) | (b01 << 2) | (b11 << 3);
+            let b00 = (C2 + DX23 * y0 - DY23 * x0 > 0) as u8;
+            let b10 = (C2 + DX23 * y0 - DY23 * x1 > 0) as u8;
+            let b01 = (C2 + DX23 * y1 - DY23 * x0 > 0) as u8;
+            let b11 = (C2 + DX23 * y1 - DY23 * x1 > 0) as u8;
+            let b = b00 | (b10 << 1) | (b01 << 2) | (b11 << 3);
 
-                let c00 = (C3 + DX31 * y0 - DY31 * x0 > 0) as u8;
-                let c10 = (C3 + DX31 * y0 - DY31 * x1 > 0) as u8;
-                let c01 = (C3 + DX31 * y1 - DY31 * x0 > 0) as u8;
-                let c11 = (C3 + DX31 * y1 - DY31 * x1 > 0) as u8;
-                let c = c00 | (c10 << 1) | (c01 << 2) | (c11 << 3);
+            let c00 = (C3 + DX31 * y0 - DY31 * x0 > 0) as u8;
+            let c10 = (C3 + DX31 * y0 - DY31 * x1 > 0) as u8;
+            let c01 = (C3 + DX31 * y1 - DY31 * x0 > 0) as u8;
+            let c11 = (C3 + DX31 * y1 - DY31 * x1 > 0) as u8;
+            let c = c00 | (c10 << 1) | (c01 << 2) | (c11 << 3);
 
-                if a == 0x0 || b == 0x0 || c == 0x0 {
-                    continue;
+            if a == 0x0 || b == 0x0 || c == 0x0 {
+                continue;
+            }
+
+            if a == 0xF && b == 0xF && c == 0xF {
+                for iy in 0..q {
+                    for ix in x..(x + q) {
+                        if ix >= WIDTH as i32 || iy >= HEIGHT as i32 || ix < 0 || iy < 0 {
+                            continue;
+                        }
+                        buffer[(ix + iy * WIDTH as i32) as usize] = color;
+                    }
                 }
+            } else {
+                let mut CY1 = C1 + DX12 * y0 - DY12 * x0;
+                let mut CY2 = C2 + DX23 * y0 - DY23 * x0;
+                let mut CY3 = C3 + DX31 * y0 - DY31 * x0;
 
-                if a == 0xF && b == 0xF && c == 0xF {
-                    for iy in 0..q {
-                        for ix in x..(x + q) {
+                for iy in y..(y + q) {
+                    let mut CX1 = CY1;
+                    let mut CX2 = CY2;
+                    let mut CX3 = CY3;
+
+                    for ix in x..(x + q) {
+                        if CX1 > 0 && CX2 > 0 && CX3 > 0 {
                             if ix >= WIDTH as i32 || iy >= HEIGHT as i32 || ix < 0 || iy < 0 {
                                 continue;
                             }
                             buffer[(ix + iy * WIDTH as i32) as usize] = color;
                         }
+
+                        CX1 -= FDY12;
+                        CX2 -= FDY23;
+                        CX3 -= FDY31;
                     }
-                } else {
-                    let mut CY1 = C1 + DX12 * y0 - DY12 * x0;
-                    let mut CY2 = C2 + DX23 * y0 - DY23 * x0;
-                    let mut CY3 = C3 + DX31 * y0 - DY31 * x0;
 
-                    for iy in y..(y + q) {
-                        let mut CX1 = CY1;
-                        let mut CX2 = CY2;
-                        let mut CX3 = CY3;
-
-                        for ix in x..(x + q) {
-                            if CX1 > 0 && CX2 > 0 && CX3 > 0 {
-                                if ix >= WIDTH as i32 || iy >= HEIGHT as i32 || ix < 0 || iy < 0 {
-                                    continue;
-                                }
-                                buffer[(ix + iy * WIDTH as i32) as usize] = color;
-                            }
-
-                            CX1 -= FDY12;
-                            CX2 -= FDY23;
-                            CX3 -= FDY31;
-                        }
-
-                        CY1 += FDX12;
-                        CY2 += FDX23;
-                        CY3 += FDX31;
-                    }
+                    CY1 += FDX12;
+                    CY2 += FDX23;
+                    CY3 += FDX31;
                 }
             }
         }
