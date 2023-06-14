@@ -1,8 +1,7 @@
 use crate::HEIGHT;
 use crate::WIDTH;
-use std::fs;
+use std::fs::read_to_string;
 
-#[allow(dead_code)]
 pub fn line(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], color: u32)
 {
     if (x1 >= WIDTH as i32 || x1 < 0)
@@ -57,19 +56,6 @@ pub fn triangle(
     [x3, y3]: [i32; 2],
     color: u32)
 {
-    if (x1 >= WIDTH as i32 || x1 < 0)
-        && (x2 >= WIDTH as i32 || x2 < 0)
-        && (x3 >= WIDTH as i32 || x3 < 0)
-    {
-        return;
-    }
-    if (y1 >= HEIGHT as i32 || y1 < 0)
-        && (y2 >= HEIGHT as i32 || y2 < 0)
-        && (y3 >= HEIGHT as i32 || y3 < 0)
-    {
-        return;
-    }
-
     let X1 = 16 * x1;
     let X2 = 16 * x2;
     let X3 = 16 * x3;
@@ -214,7 +200,6 @@ impl Vec3 {
             (((self.y * f) / self.z + 1.0) * HEIGHT as f64 / 2.0) as i32,
         ]
     }
-
     pub fn normalise(&mut self) {
         let l = (self.x * self.x
             + self.y * self.y
@@ -288,7 +273,7 @@ pub struct Obj {pub mesh: Vec<Vec3>, pub faces: Vec<[usize; 3]>, pub projected_m
 
 impl Obj {
     pub fn load_from_file(&mut self, path: &str) {
-        let file = fs::read_to_string(path).unwrap();
+        let file = read_to_string(path).unwrap();
         let split = file.split('\n');
 
         for s in split {

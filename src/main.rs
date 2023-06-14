@@ -29,7 +29,7 @@ fn main() {
         projected_mesh: vec![]
     };
 
-    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/monke.obj");
+    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/mountains.obj");
 
     let mut window = Window::new("Renderer", WIDTH, HEIGHT, WindowOptions{
         scale: Scale::X1,
@@ -48,7 +48,9 @@ fn main() {
             y: 0.0,
             z: 0.0,
         }; cube.mesh.len()];
+        let mut rotated_index = vec![false; cube.mesh.len()];
         cube.projected_mesh = vec![[0,0]; cube.mesh.len()];
+        let mut projected_index = vec![false; cube.mesh.len()];
 
         for i in window.get_keys() {
             match i {
@@ -98,7 +100,7 @@ fn main() {
         }
 
         for i in &cube.faces {
-            if rotated[i[0]].z == 0.0 {
+            if rotated_index[i[0]] == false {
                 rotated[i[0]] = cube.mesh[i[0]].rotate(Vec3 {
                     x: camera.x,
                     y: camera.y,
@@ -112,8 +114,10 @@ fn main() {
                 rotated[i[0]].x -= camera.x;
                 rotated[i[0]].y -= camera.y;
                 rotated[i[0]].z -= camera.z;
+
+                rotated_index[i[0]] = true;
             }
-            if rotated[i[1]].z == 0.0 {
+            if rotated_index[i[1]] == false {
                 rotated[i[1]] = cube.mesh[i[1]].rotate(Vec3 {
                     x: camera.x,
                     y: camera.y,
@@ -127,8 +131,10 @@ fn main() {
                 rotated[i[1]].x -= camera.x;
                 rotated[i[1]].y -= camera.y;
                 rotated[i[1]].z -= camera.z;
+
+                rotated_index[i[1]] = true;
             }
-            if rotated[i[2]].z == 0.0 {
+            if rotated_index[i[2]] == false {
                 rotated[i[2]] = cube.mesh[i[2]].rotate(Vec3 {
                     x: camera.x,
                     y: camera.y,
@@ -142,19 +148,37 @@ fn main() {
                 rotated[i[2]].x -= camera.x;
                 rotated[i[2]].y -= camera.y;
                 rotated[i[2]].z -= camera.z;
+
+                rotated_index[i[2]] = true;
             }
 
             let normal = normal(&rotated[i[0]],&rotated[i[1]],&rotated[i[2]]);
+            if ((dot(&normal,&rotated[i[0]])) < 0.0) &&
+                (rotated[i[0]].z + rotated[i[1]].z + rotated[i[2]].z) > 0.0 &&
+                !(rotated[i[0]].x > rotated[i[0]].z/-fov &&
+                rotated[i[1]].x > rotated[i[1]].z/-fov &&
+                rotated[i[2]].x > rotated[i[2]].z/-fov) &&
+                !(rotated[i[0]].x < rotated[i[0]].z/fov &&
+                rotated[i[1]].x < rotated[i[1]].z/fov &&
+                rotated[i[2]].x < rotated[i[2]].z/fov) &&
+                !(rotated[i[0]].y > rotated[i[0]].z/-fov &&
+                rotated[i[1]].y > rotated[i[1]].z/-fov &&
+                rotated[i[2]].y > rotated[i[2]].z/-fov) &&
+                !(rotated[i[0]].y < rotated[i[0]].z/fov &&
+                rotated[i[1]].y < rotated[i[1]].z/fov &&
+                rotated[i[2]].y < rotated[i[2]].z/fov){
 
-            if ((dot(&normal,&rotated[i[0]])) < 0.0) && (rotated[i[0]].z + rotated[i[1]].z + rotated[i[2]].z) > 0.0{
-                if cube.projected_mesh[i[0]] == [0,0] {
+                if projected_index[i[0]] == false {
                     cube.projected_mesh[i[0]] = rotated[i[0]].project(fov);
+                    projected_index[i[0]] = true;
                 }
-                if cube.projected_mesh[i[1]] == [0,0] {
+                if projected_index[i[1]] == false {
                     cube.projected_mesh[i[1]] = rotated[i[1]].project(fov);
+                    projected_index[i[1]] = true;
                 }
-                if cube.projected_mesh[i[2]] == [0,0] {
+                if projected_index[i[2]] == false {
                     cube.projected_mesh[i[2]] = rotated[i[2]].project(fov);
+                    projected_index[i[2]] = true;
                 }
 
                 let mut light_direction = Vec3 {
@@ -175,7 +199,7 @@ fn main() {
                     z: 0.0,
                 }, di, 0);
 
-                let dp = ((200.0
+                let shade = ((200.0
                     * dot(&normal, &light_direction)) as u32
                      + 25) * 0x010101;
 
@@ -188,7 +212,7 @@ fn main() {
                     b: cube.projected_mesh[i[1]],
                     c: cube.projected_mesh[i[2]],
                     depth: rotated[i[0]].z + rotated[i[1]].z + rotated[i[2]].z,
-                    color: dp
+                    color: shade
                 });
             }
         }
