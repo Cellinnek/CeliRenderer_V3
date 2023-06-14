@@ -5,7 +5,6 @@ edition = "2021"
 
 [dependencies]
 minifb = "0.24.0"
-rand = "0.8.5"
 
 [profile.release]
 codegen-units = 1

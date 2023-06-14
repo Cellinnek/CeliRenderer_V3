@@ -14,7 +14,7 @@ use functions::*;
 
 fn main() {
     let mut fov: f64 = -2.0;
-    let mut camera = Camera{
+    let mut camera = Vec3{
         x: 0.0,
         y: 0.0,
         z: 0.0,
@@ -222,7 +222,6 @@ fn main() {
         for i in &triangles {
             i.draw_face(&mut buffer, i.color);
         }
-        println!("{}",triangles.len());
 
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap(); //.expect("Oops!");
     }
