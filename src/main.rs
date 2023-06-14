@@ -7,15 +7,15 @@ mod functions;
 use functions::*;
 
 fn main() {
-    let mut fov: f64 = -2.0;
+    let mut fov: f32 = -2.0;
     let mut camera = Vec3{
         x: 0.0,
         y: 0.0,
         z: 0.0,
     };
 
-    let mut fi:f64 = 0.0;
-    let mut di:f64 = 0.0;
+    let mut fi:f32 = 0.0;
+    let mut di:f32 = 0.0;
 
     let mut cube = Obj {
         mesh: vec![],
@@ -148,7 +148,6 @@ fn main() {
 
             let normal = normal(&rotated[i[0]],&rotated[i[1]],&rotated[i[2]]);
             if ((dot(&normal,&rotated[i[0]])) < 0.0) &&
-                (rotated[i[0]].z + rotated[i[1]].z + rotated[i[2]].z) > fov &&
                 !(rotated[i[0]].x > rotated[i[0]].z/-fov &&
                 rotated[i[1]].x > rotated[i[1]].z/-fov &&
                 rotated[i[2]].x > rotated[i[2]].z/-fov) &&
@@ -199,7 +198,7 @@ fn main() {
 
                 /*let dp = ((150.0
                     * dot(&normal, &light_direction)) as u32
-                    + (50.0 * (2.0 - cube.projected_mesh[i[0]][1] as f64/300.0)) as u32) * 0x010101;*/ // <- gradient uuu aaa
+                    + (50.0 * (2.0 - cube.projected_mesh[i[0]][1] as f32/300.0)) as u32) * 0x010101;*/ // <- gradient uuu aaa
 
                 triangles.push(Triangle{
                     a: cube.projected_mesh[i[0]],
@@ -216,6 +215,8 @@ fn main() {
         for i in &triangles {
             i.draw_face(&mut buffer, i.color);
         }
+
+        println!("{}",triangles.len());
 
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
     }

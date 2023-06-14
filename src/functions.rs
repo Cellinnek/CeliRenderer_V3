@@ -186,16 +186,16 @@ pub fn triangle(
 
 #[derive(Clone)]
 pub struct Vec3 {
-    pub x: f64,
-    pub y: f64,
-    pub z: f64
+    pub x: f32,
+    pub y: f32,
+    pub z: f32
 }
 
 impl Vec3 {
-    pub fn project(&self, f: f64) -> [i32; 2] {
+    pub fn project(&self, f: f32) -> [i32; 2] {
         [
-            (((self.x * f) / self.z + 1.0) * WIDTH as f64 / 2.0) as i32,
-            (((self.y * f) / self.z + 1.0) * HEIGHT as f64 / 2.0) as i32,
+            (((self.x * f) / self.z + 1.0) * WIDTH as f32 / 2.0) as i32,
+            (((self.y * f) / self.z + 1.0) * HEIGHT as f32 / 2.0) as i32,
         ]
     }
     pub fn normalise(&mut self) {
@@ -209,7 +209,7 @@ impl Vec3 {
         self.z /= l;
     }
 
-    pub fn rotate (&mut self, r: Vec3, fi: f64, axis: u8) -> Vec3{
+    pub fn rotate (&mut self, r: Vec3, fi: f32, axis: u8) -> Vec3{
         match axis % 3 {
             0 => {
                 let (y, z) = (self.y - r.y, self.z - r.z);
@@ -244,7 +244,7 @@ impl Vec3 {
     }
 }
 
-pub fn dot(a: &Vec3, b: &Vec3) -> f64 {a.x * b.x + a.y * b.y + a.z * b.z}
+pub fn dot(a: &Vec3, b: &Vec3) -> f32 {a.x * b.x + a.y * b.y + a.z * b.z}
 
 pub fn normal(a: &Vec3, b: &Vec3, c: &Vec3) -> Vec3{
     let line1 = Vec3 {
@@ -277,9 +277,9 @@ impl Obj {
         for s in split {
             match s.split_whitespace().next() {
                 Some("v") => self.mesh.push(Vec3 {
-                    x: s.split_whitespace().nth(1).unwrap().parse::<f64>().unwrap(),
-                    y: s.split_whitespace().nth(2).unwrap().parse::<f64>().unwrap(),
-                    z: s.split_whitespace().nth(3).unwrap().parse::<f64>().unwrap() + 6.0
+                    x: s.split_whitespace().nth(1).unwrap().parse::<f32>().unwrap(),
+                    y: s.split_whitespace().nth(2).unwrap().parse::<f32>().unwrap(),
+                    z: s.split_whitespace().nth(3).unwrap().parse::<f32>().unwrap() + 6.0
                 }),
                 Some("f") => self.faces.push([
                     s.split_whitespace().nth(1).unwrap().parse::<usize>().unwrap() - 1,
@@ -297,7 +297,7 @@ pub struct  Triangle{
     pub a: [i32;2],
     pub b: [i32;2],
     pub c: [i32;2],
-    pub depth: f64,
+    pub depth: f32,
     pub color: u32,
 }
 
