@@ -1,9 +1,3 @@
-use std::alloc::System;
-
-#[global_allocator]
-static A: System = System;
-extern crate core;
-
 use minifb::{Key, Scale, Window, WindowOptions};
 
 const WIDTH: usize = 800;
