@@ -29,7 +29,7 @@ fn main() {
         projected_mesh: vec![]
     };
 
-    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/mountains.obj");
+    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/monke.obj");
 
     let mut window = Window::new("Renderer", WIDTH, HEIGHT, WindowOptions{
         scale: Scale::X1,
@@ -100,7 +100,7 @@ fn main() {
         }
 
         for i in &cube.faces {
-            if rotated_index[i[0]] == false {
+            if !rotated_index[i[0]] {
                 rotated[i[0]] = cube.mesh[i[0]].rotate(Vec3 {
                     x: camera.x,
                     y: camera.y,
@@ -117,7 +117,7 @@ fn main() {
 
                 rotated_index[i[0]] = true;
             }
-            if rotated_index[i[1]] == false {
+            if !rotated_index[i[1]] {
                 rotated[i[1]] = cube.mesh[i[1]].rotate(Vec3 {
                     x: camera.x,
                     y: camera.y,
@@ -134,7 +134,7 @@ fn main() {
 
                 rotated_index[i[1]] = true;
             }
-            if rotated_index[i[2]] == false {
+            if !rotated_index[i[2]] {
                 rotated[i[2]] = cube.mesh[i[2]].rotate(Vec3 {
                     x: camera.x,
                     y: camera.y,
@@ -154,7 +154,7 @@ fn main() {
 
             let normal = normal(&rotated[i[0]],&rotated[i[1]],&rotated[i[2]]);
             if ((dot(&normal,&rotated[i[0]])) < 0.0) &&
-                (rotated[i[0]].z + rotated[i[1]].z + rotated[i[2]].z) > 0.0 &&
+                (rotated[i[0]].z + rotated[i[1]].z + rotated[i[2]].z) > fov &&
                 !(rotated[i[0]].x > rotated[i[0]].z/-fov &&
                 rotated[i[1]].x > rotated[i[1]].z/-fov &&
                 rotated[i[2]].x > rotated[i[2]].z/-fov) &&
@@ -168,15 +168,15 @@ fn main() {
                 rotated[i[1]].y < rotated[i[1]].z/fov &&
                 rotated[i[2]].y < rotated[i[2]].z/fov){
 
-                if projected_index[i[0]] == false {
+                if !projected_index[i[0]] {
                     cube.projected_mesh[i[0]] = rotated[i[0]].project(fov);
                     projected_index[i[0]] = true;
                 }
-                if projected_index[i[1]] == false {
+                if !projected_index[i[1]] {
                     cube.projected_mesh[i[1]] = rotated[i[1]].project(fov);
                     projected_index[i[1]] = true;
                 }
-                if projected_index[i[2]] == false {
+                if !projected_index[i[2]] {
                     cube.projected_mesh[i[2]] = rotated[i[2]].project(fov);
                     projected_index[i[2]] = true;
                 }
@@ -222,6 +222,7 @@ fn main() {
         for i in &triangles {
             i.draw_face(&mut buffer, i.color);
         }
+        println!("{}",triangles.len());
 
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap(); //.expect("Oops!");
     }
