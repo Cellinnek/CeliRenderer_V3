@@ -185,8 +185,7 @@ fn main() {
                     x: 0.0,
                     y: 0.0,
                     z: 0.0,
-                }, fi, 1);
-                light_direction = light_direction.rotate(Vec3 {
+                }, fi, 1).rotate(Vec3 {
                     x: 0.0,
                     y: 0.0,
                     z: 0.0,
@@ -195,6 +194,10 @@ fn main() {
                 let shade = ((200.0
                     * dot(&normal, &light_direction)) as u32
                      + 25) * 0x010101;
+
+                /*let shade = (((200.0
+                    * dot(&normal, &light_direction))
+                    + 25.0) * (50.0/rotated[i[0]].z).clamp(0.0,1.0)) as u32 * 0x010101;*/ // <- further = darker uuu aaa
 
                 /*let dp = ((150.0
                     * dot(&normal, &light_direction)) as u32

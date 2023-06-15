@@ -4,16 +4,6 @@ use std::fs::read_to_string;
 
 pub fn line(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], color: u32)
 {
-    if (x1 >= WIDTH as i32 || x1 < 0)
-        && (x2 >= WIDTH as i32 || x2 < 0)
-    {
-        return;
-    }
-    if (y1 >= HEIGHT as i32 || y1 < 0)
-        && (y2 >= HEIGHT as i32 || y2 < 0)
-    {
-        return;
-    }
     let mut x = x1;
     let mut y = y1;
 
