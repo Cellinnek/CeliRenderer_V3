@@ -191,17 +191,13 @@ fn main() {
                     z: 0.0,
                 }, di, 0);
 
-                let shade = ((200.0
+                /*let shade = ((200.0
                     * dot(&normal, &light_direction)) as u32
-                     + 25) * 0x010101;
+                     + 25) * 0x010101;*/
 
-                /*let shade = (((200.0
+                let shade = (((200.0
                     * dot(&normal, &light_direction))
-                    + 25.0) * (50.0/rotated[i[0]].z).clamp(0.0,1.0)) as u32 * 0x010101;*/ // <- further = darker uuu aaa
-
-                /*let dp = ((150.0
-                    * dot(&normal, &light_direction)) as u32
-                    + (50.0 * (2.0 - cube.projected_mesh[i[0]][1] as f32/300.0)) as u32) * 0x010101;*/ // <- gradient uuu aaa
+                    + 25.0) * (50.0/rotated[i[0]].z).clamp(0.2,1.0)) as u32 * 0x010101; // <- further = darker uuu aaa
 
                 triangles.push(Triangle{
                     a: cube.projected_mesh[i[0]],
