@@ -23,7 +23,7 @@ fn main() {
         projected_mesh: vec![]
     };
 
-    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/monke.obj");
+    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/mountains.obj");
 
     let mut window = Window::new("Renderer", WIDTH, HEIGHT, WindowOptions{
         scale: Scale::X1,
@@ -191,13 +191,7 @@ fn main() {
                     z: 0.0,
                 }, di, 0);
 
-                /*let shade = ((200.0
-                    * dot(&normal, &light_direction)) as u32
-                     + 25) * 0x010101;*/
-
-                let shade = (((200.0
-                    * dot(&normal, &light_direction))
-                    + 25.0) * (50.0/rotated[i[0]].z).clamp(0.2,1.0)) as u32 * 0x010101; // <- further = darker uuu aaa
+                let shade = ((200.0 * dot(&normal, &light_direction)) as u32 + 25) * 0x010101;
 
                 triangles.push(Triangle{
                     a: cube.projected_mesh[i[0]],
@@ -214,8 +208,6 @@ fn main() {
         for i in &triangles {
             i.draw_face(&mut buffer, i.color);
         }
-
-        println!("{}",triangles.len());
 
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
     }
