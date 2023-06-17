@@ -1,6 +1,7 @@
 use crate::HEIGHT;
 use crate::WIDTH;
 use std::fs::read_to_string;
+use core::mem::swap;
 
 pub fn line(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], color: u32)
 {
@@ -172,6 +173,113 @@ pub fn triangle(
             }
         }
     }
+}
+
+pub fn textured_triangle(
+    buffer: &mut [u32],
+    [mut x1, mut y1]: [i32; 2],
+    [mut u1, mut v1]: [f32; 2],
+    [mut x2, mut y2]: [i32; 2],
+    [mut u2, mut v2]: [f32; 2],
+    [mut x3, mut y3]: [i32; 2],
+    [mut u3, mut v3]: [f32; 2])
+{
+    if y2 < y1 {
+        swap(&mut y1, &mut y2);
+        swap(&mut x1, &mut x2);
+        swap(&mut u1, &mut u2);
+        swap(&mut v1, &mut v2);
+    }
+
+    if y3 < y1 {
+        swap(&mut y1, &mut y3);
+        swap(&mut x1, &mut x3);
+        swap(&mut u1, &mut u3);
+        swap(&mut v1, &mut v3);
+    }
+
+    if y3 < y1 {
+        swap(&mut y2, &mut y3);
+        swap(&mut x2, &mut x3);
+        swap(&mut u2, &mut u3);
+        swap(&mut v2, &mut v3);
+    }
+
+    let dy1 = y2 - y1;
+    let dx1 = x2 - x1;
+    let dv1 = v2 - v1;
+    let du1 = u2 - u1;
+
+    let dy2 = y3 - y1;
+    let dx2 = x3 - x1;
+    let dv2 = v3 - v1;
+    let du2 = u3 - u1;
+
+    let mut dax_step = 0.0;
+    let mut dbx_step = 0.0;
+    let mut du1_step = 0.0;
+    let mut dv1_step = 0.0;
+    let mut du2_step = 0.0;
+    let mut dv2_step = 0.0;
+
+    if dy1 != 0 {
+        dax_step = dx1 as f32/ dy1.abs() as f32;
+        du1_step = du1/ dy1.abs() as f32;
+        dv1_step = dv1/ dy1.abs() as f32;
+    }
+
+    if dy2 != 0 {
+        dbx_step = dx2 as f32/ dy2.abs() as f32;
+        du2_step = du2/ dy2.abs() as f32;
+        dv2_step = dv2/ dy2.abs() as f32;
+    }
+
+    if dy1 != 0 {
+        for i in y1..y2
+        {
+            let ax = x1 + (float)(i - y1) * dax_step;
+            let bx = x1 + (float)(i - y1) * dbx_step;
+
+            let tex_su = u1 + (float)(i - y1) * du1_step;
+            let tex_sv = v1 + (float)(i - y1) * dv1_step;
+            let tex_sw = w1 + (float)(i - y1) * dw1_step;
+
+            let tex_eu = u1 + (float)(i - y1) * du2_step;
+            let tex_ev = v1 + (float)(i - y1) * dv2_step;
+            let tex_ew = w1 + (float)(i - y1) * dw2_step;
+
+            if ax > bx
+            {
+                swap(ax, bx);
+                swap(tex_su, tex_eu);
+                swap(tex_sv, tex_ev);
+                swap(tex_sw, tex_ew);
+            }
+
+            tex_u = tex_su;
+            tex_v = tex_sv;
+            tex_w = tex_sw;
+
+            let tstep = 1.0 / ((float)(bx - ax));
+            let t = 0.0;
+
+            for j in ax..bx
+            {
+                tex_u = (1.0 - t) * tex_su + t * tex_eu;
+                tex_v = (1.0 - t) * tex_sv + t * tex_ev;
+                tex_w = (1.0 - t) * tex_sw + t * tex_ew;
+                if (tex_w > pDepthBuffer[i*ScreenWidth() + j])
+                {
+                    Draw(j, i, tex->SampleColour(tex_u / tex_w, tex_v / tex_w));
+                    pDepthBuffer[i*ScreenWidth() + j] = tex_w;
+                }
+                t += tstep;
+            }
+
+        }
+    }
+
+
 }
 
 #[derive(Clone)]
