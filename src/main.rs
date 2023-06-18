@@ -23,7 +23,7 @@ fn main() {
         projected_mesh: vec![]
     };
 
-    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/mountains.obj");
+    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/axis.obj");
 
     let mut transformed = vec![Vec3{
         x: 0.0,

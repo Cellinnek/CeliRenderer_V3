@@ -75,7 +75,7 @@ pub fn triangle(
     let mut miny = (*[Y1, Y2, Y3].iter().min().unwrap() + 0xF) >> 4;
     let maxy = (*[Y1, Y2, Y3].iter().max().unwrap() + 0xF) >> 4;
 
-    let mut q = 8;
+    let q = 8;
 
     minx &= !(q - 1);
     miny &= !(q - 1);
