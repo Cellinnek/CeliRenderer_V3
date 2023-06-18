@@ -23,7 +23,7 @@ fn main() {
         projected_mesh: vec![]
     };
 
-    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/monke.obj");
+    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/mountains.obj");
 
     let mut transformed = vec![Vec3{
         x: 0.0,
@@ -208,6 +208,11 @@ fn main() {
         for i in &triangles {
             i.draw_face(&mut buffer, i.color);
         }
+
+        line(&mut buffer, [WIDTH as i32/4,HEIGHT as i32/4], [WIDTH as i32/4,3*HEIGHT as i32/4], 0xff0000);
+        line(&mut buffer, [WIDTH as i32/4,HEIGHT as i32/4], [3*WIDTH as i32/4,HEIGHT as i32/4], 0xff0000);
+        line(&mut buffer, [3*WIDTH as i32/4,3*HEIGHT as i32/4], [WIDTH as i32/4,3*HEIGHT as i32/4], 0xff0000);
+        line(&mut buffer, [3*WIDTH as i32/4,3*HEIGHT as i32/4], [3*WIDTH as i32/4,HEIGHT as i32/4], 0xff0000);
 
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
     }

@@ -75,17 +75,7 @@ pub fn triangle(
     let mut miny = (*[Y1, Y2, Y3].iter().min().unwrap() + 0xF) >> 4;
     let maxy = (*[Y1, Y2, Y3].iter().max().unwrap() + 0xF) >> 4;
 
-    let mut q = if (maxx - minx) > (maxy - miny) {
-        maxx - minx + 1
-    } else {
-        maxy - miny + 1
-    };
-    q |= q >> 16;
-    q |= q >> 8;
-    q |= q >> 4;
-    q |= q >> 2;
-    q |= q >> 1;
-    q ^= q >> 1;
+    let mut q = 8;
 
     minx &= !(q - 1);
     miny &= !(q - 1);
@@ -134,8 +124,11 @@ pub fn triangle(
             }
 
             if a == 0xF && b == 0xF && c == 0xF {
-                for iy in 0..q {
+                for iy in y..(y+q) {
                     for ix in x..(x + q) {
+                        if ix >= WIDTH as i32 || iy >= HEIGHT as i32 || ix < 0 || iy < 0 {
+                            continue;
+                        }
                         buffer[(ix + iy * WIDTH as i32) as usize] = color;
                     }
                 }
@@ -181,8 +174,8 @@ pub struct Vec3 {
 impl Vec3 {
     pub fn project(&self, f: f32) -> [i32; 2] {
         [
-            (((self.x * f) / self.z + 1.0) * WIDTH as f32 / 2.0) as i32,
-            (((self.y * f) / self.z + 1.0) * HEIGHT as f32 / 2.0) as i32,
+            (((self.x * f) / self.z + 2.0) * WIDTH as f32 / 4.0) as i32,
+            (((self.y * f) / self.z + 2.0) * HEIGHT as f32 / 4.0) as i32,
         ]
     }
     pub fn normalise(&mut self) {
