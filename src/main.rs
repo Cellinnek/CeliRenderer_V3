@@ -23,7 +23,7 @@ fn main() {
         projected_mesh: vec![]
     };
 
-    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/axis.obj");
+    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/pot.obj");
 
     let mut transformed = vec![Vec3{
         x: 0.0,
@@ -94,56 +94,24 @@ fn main() {
         }
 
         for i in &cube.faces {
-            if !transformed_index[i[0]] {
-                transformed[i[0]] = cube.mesh[i[0]].rotate(Vec3 {
-                    x: camera.x,
-                    y: camera.y,
-                    z: camera.z,
-                }, fi, 1).rotate(Vec3 {
-                    x: camera.x,
-                    y: camera.y,
-                    z: camera.z,
-                }, di, 0);
+            for &j in i {
+                if !transformed_index[j] {
+                    transformed[j] = cube.mesh[j].rotate(Vec3 {
+                        x: camera.x,
+                        y: camera.y,
+                        z: camera.z,
+                    }, fi, 1).rotate(Vec3 {
+                        x: camera.x,
+                        y: camera.y,
+                        z: camera.z,
+                    }, di, 0);
 
-                transformed[i[0]].x -= camera.x;
-                transformed[i[0]].y -= camera.y;
-                transformed[i[0]].z -= camera.z;
+                    transformed[j].x -= camera.x;
+                    transformed[j].y -= camera.y;
+                    transformed[j].z -= camera.z;
 
-                transformed_index[i[0]] = true;
-            }
-            if !transformed_index[i[1]] {
-                transformed[i[1]] = cube.mesh[i[1]].rotate(Vec3 {
-                    x: camera.x,
-                    y: camera.y,
-                    z: camera.z,
-                }, fi, 1).rotate(Vec3 {
-                    x: camera.x,
-                    y: camera.y,
-                    z: camera.z,
-                }, di, 0);
-
-                transformed[i[1]].x -= camera.x;
-                transformed[i[1]].y -= camera.y;
-                transformed[i[1]].z -= camera.z;
-
-                transformed_index[i[1]] = true;
-            }
-            if !transformed_index[i[2]] {
-                transformed[i[2]] = cube.mesh[i[2]].rotate(Vec3 {
-                    x: camera.x,
-                    y: camera.y,
-                    z: camera.z,
-                }, fi, 1).rotate(Vec3 {
-                    x: camera.x,
-                    y: camera.y,
-                    z: camera.z,
-                }, di, 0);
-
-                transformed[i[2]].x -= camera.x;
-                transformed[i[2]].y -= camera.y;
-                transformed[i[2]].z -= camera.z;
-
-                transformed_index[i[2]] = true;
+                    transformed_index[j] = true;
+                }
             }
 
             let normal = normal(&transformed[i[0]], &transformed[i[1]], &transformed[i[2]]);
@@ -161,17 +129,11 @@ fn main() {
                     transformed[i[1]].y < transformed[i[1]].z/fov &&
                     transformed[i[2]].y < transformed[i[2]].z/fov){
 
-                if !projected_index[i[0]] {
-                    cube.projected_mesh[i[0]] = transformed[i[0]].project(fov);
-                    projected_index[i[0]] = true;
-                }
-                if !projected_index[i[1]] {
-                    cube.projected_mesh[i[1]] = transformed[i[1]].project(fov);
-                    projected_index[i[1]] = true;
-                }
-                if !projected_index[i[2]] {
-                    cube.projected_mesh[i[2]] = transformed[i[2]].project(fov);
-                    projected_index[i[2]] = true;
+                for &j in i {
+                    if !projected_index[j] {
+                        cube.projected_mesh[j] = transformed[j].project(fov);
+                        projected_index[j] = true;
+                    }
                 }
 
                 let mut light_direction = Vec3 {
