@@ -136,9 +136,6 @@ pub fn triangle(
             if a == 0xF && b == 0xF && c == 0xF {
                 for iy in 0..q {
                     for ix in x..(x + q) {
-                        if ix >= WIDTH as i32 || iy >= HEIGHT as i32 || ix < 0 || iy < 0 {
-                            continue;
-                        }
                         buffer[(ix + iy * WIDTH as i32) as usize] = color;
                     }
                 }
@@ -266,11 +263,13 @@ impl Obj {
 
         for s in split {
             match s.split_whitespace().next() {
-                Some("v") => self.mesh.push(Vec3 {
+                Some("v") => {
+                    self.mesh.push(Vec3 {
                     x: s.split_whitespace().nth(1).unwrap().parse::<f32>().unwrap(),
                     y: s.split_whitespace().nth(2).unwrap().parse::<f32>().unwrap(),
-                    z: s.split_whitespace().nth(3).unwrap().parse::<f32>().unwrap() + 6.0
-                }),
+                    z: s.split_whitespace().nth(3).unwrap().parse::<f32>().unwrap() + 6.0 });
+                    self.projected_mesh.push([0,0]);
+                },
                 Some("f") => self.faces.push([
                     s.split_whitespace().nth(1).unwrap().parse::<usize>().unwrap() - 1,
                     s.split_whitespace().nth(2).unwrap().parse::<usize>().unwrap() - 1,

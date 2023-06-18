@@ -23,7 +23,13 @@ fn main() {
         projected_mesh: vec![]
     };
 
-    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/mountains.obj");
+    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/monke.obj");
+
+    let mut transformed = vec![Vec3{
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+    }; cube.mesh.len()];
 
     let mut window = Window::new("Renderer", WIDTH, HEIGHT, WindowOptions{
         scale: Scale::X1,
@@ -37,13 +43,7 @@ fn main() {
     while window.is_open() {
         let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
         let mut triangles:Vec<Triangle> = vec![];
-        let mut rotated = vec![Vec3{
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        }; cube.mesh.len()];
-        let mut rotated_index = vec![false; cube.mesh.len()];
-        cube.projected_mesh = vec![[0,0]; cube.mesh.len()];
+        let mut transformed_index = vec![false; cube.mesh.len()];
         let mut projected_index = vec![false; cube.mesh.len()];
 
         for i in window.get_keys() {
@@ -94,8 +94,8 @@ fn main() {
         }
 
         for i in &cube.faces {
-            if !rotated_index[i[0]] {
-                rotated[i[0]] = cube.mesh[i[0]].rotate(Vec3 {
+            if !transformed_index[i[0]] {
+                transformed[i[0]] = cube.mesh[i[0]].rotate(Vec3 {
                     x: camera.x,
                     y: camera.y,
                     z: camera.z,
@@ -105,14 +105,14 @@ fn main() {
                     z: camera.z,
                 }, di, 0);
 
-                rotated[i[0]].x -= camera.x;
-                rotated[i[0]].y -= camera.y;
-                rotated[i[0]].z -= camera.z;
+                transformed[i[0]].x -= camera.x;
+                transformed[i[0]].y -= camera.y;
+                transformed[i[0]].z -= camera.z;
 
-                rotated_index[i[0]] = true;
+                transformed_index[i[0]] = true;
             }
-            if !rotated_index[i[1]] {
-                rotated[i[1]] = cube.mesh[i[1]].rotate(Vec3 {
+            if !transformed_index[i[1]] {
+                transformed[i[1]] = cube.mesh[i[1]].rotate(Vec3 {
                     x: camera.x,
                     y: camera.y,
                     z: camera.z,
@@ -122,14 +122,14 @@ fn main() {
                     z: camera.z,
                 }, di, 0);
 
-                rotated[i[1]].x -= camera.x;
-                rotated[i[1]].y -= camera.y;
-                rotated[i[1]].z -= camera.z;
+                transformed[i[1]].x -= camera.x;
+                transformed[i[1]].y -= camera.y;
+                transformed[i[1]].z -= camera.z;
 
-                rotated_index[i[1]] = true;
+                transformed_index[i[1]] = true;
             }
-            if !rotated_index[i[2]] {
-                rotated[i[2]] = cube.mesh[i[2]].rotate(Vec3 {
+            if !transformed_index[i[2]] {
+                transformed[i[2]] = cube.mesh[i[2]].rotate(Vec3 {
                     x: camera.x,
                     y: camera.y,
                     z: camera.z,
@@ -139,38 +139,38 @@ fn main() {
                     z: camera.z,
                 }, di, 0);
 
-                rotated[i[2]].x -= camera.x;
-                rotated[i[2]].y -= camera.y;
-                rotated[i[2]].z -= camera.z;
+                transformed[i[2]].x -= camera.x;
+                transformed[i[2]].y -= camera.y;
+                transformed[i[2]].z -= camera.z;
 
-                rotated_index[i[2]] = true;
+                transformed_index[i[2]] = true;
             }
 
-            let normal = normal(&rotated[i[0]],&rotated[i[1]],&rotated[i[2]]);
-            if ((dot(&normal,&rotated[i[0]])) < 0.0) &&
-                !(rotated[i[0]].x > rotated[i[0]].z/-fov &&
-                rotated[i[1]].x > rotated[i[1]].z/-fov &&
-                rotated[i[2]].x > rotated[i[2]].z/-fov) &&
-                !(rotated[i[0]].x < rotated[i[0]].z/fov &&
-                rotated[i[1]].x < rotated[i[1]].z/fov &&
-                rotated[i[2]].x < rotated[i[2]].z/fov) &&
-                !(rotated[i[0]].y > rotated[i[0]].z/-fov &&
-                rotated[i[1]].y > rotated[i[1]].z/-fov &&
-                rotated[i[2]].y > rotated[i[2]].z/-fov) &&
-                !(rotated[i[0]].y < rotated[i[0]].z/fov &&
-                rotated[i[1]].y < rotated[i[1]].z/fov &&
-                rotated[i[2]].y < rotated[i[2]].z/fov){
+            let normal = normal(&transformed[i[0]], &transformed[i[1]], &transformed[i[2]]);
+            if ((dot(&normal,&transformed[i[0]])) < 0.0) &&
+                !(transformed[i[0]].x > transformed[i[0]].z/-fov &&
+                    transformed[i[1]].x > transformed[i[1]].z/-fov &&
+                    transformed[i[2]].x > transformed[i[2]].z/-fov) &&
+                !(transformed[i[0]].x < transformed[i[0]].z/fov &&
+                    transformed[i[1]].x < transformed[i[1]].z/fov &&
+                    transformed[i[2]].x < transformed[i[2]].z/fov) &&
+                !(transformed[i[0]].y > transformed[i[0]].z/-fov &&
+                    transformed[i[1]].y > transformed[i[1]].z/-fov &&
+                    transformed[i[2]].y > transformed[i[2]].z/-fov) &&
+                !(transformed[i[0]].y < transformed[i[0]].z/fov &&
+                    transformed[i[1]].y < transformed[i[1]].z/fov &&
+                    transformed[i[2]].y < transformed[i[2]].z/fov){
 
                 if !projected_index[i[0]] {
-                    cube.projected_mesh[i[0]] = rotated[i[0]].project(fov);
+                    cube.projected_mesh[i[0]] = transformed[i[0]].project(fov);
                     projected_index[i[0]] = true;
                 }
                 if !projected_index[i[1]] {
-                    cube.projected_mesh[i[1]] = rotated[i[1]].project(fov);
+                    cube.projected_mesh[i[1]] = transformed[i[1]].project(fov);
                     projected_index[i[1]] = true;
                 }
                 if !projected_index[i[2]] {
-                    cube.projected_mesh[i[2]] = rotated[i[2]].project(fov);
+                    cube.projected_mesh[i[2]] = transformed[i[2]].project(fov);
                     projected_index[i[2]] = true;
                 }
 
@@ -197,7 +197,7 @@ fn main() {
                     a: cube.projected_mesh[i[0]],
                     b: cube.projected_mesh[i[1]],
                     c: cube.projected_mesh[i[2]],
-                    depth: rotated[i[0]].z + rotated[i[1]].z + rotated[i[2]].z,
+                    depth: transformed[i[0]].z + transformed[i[1]].z + transformed[i[2]].z,
                     color: shade
                 });
             }
