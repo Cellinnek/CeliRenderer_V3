@@ -23,7 +23,7 @@ fn main() {
         projected_mesh: vec![]
     };
 
-    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/pot.obj");
+    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/monke.obj");
 
     let mut transformed = vec![Vec3{
         x: 0.0,
@@ -96,26 +96,16 @@ fn main() {
         for i in &cube.faces {
             for &j in i {
                 if !transformed_index[j] {
-                    transformed[j] = cube.mesh[j].rotate(Vec3 {
-                        x: camera.x,
-                        y: camera.y,
-                        z: camera.z,
-                    }, fi, 1).rotate(Vec3 {
-                        x: camera.x,
-                        y: camera.y,
-                        z: camera.z,
-                    }, di, 0);
+                    transformed[j] = cube.mesh[j].rotate(&camera, fi, 1).rotate(&camera, di, 0);
 
-                    transformed[j].x -= camera.x;
-                    transformed[j].y -= camera.y;
-                    transformed[j].z -= camera.z;
+                    transformed[j] = vector_sub(&transformed[j],&camera);
 
                     transformed_index[j] = true;
                 }
             }
 
             let normal = normal(&transformed[i[0]], &transformed[i[1]], &transformed[i[2]]);
-            if ((dot(&normal,&transformed[i[0]])) < 0.0) &&
+            if ((vector_dot(&normal, &transformed[i[0]])) < 0.0) &&
                 !(transformed[i[0]].x > transformed[i[0]].z/-fov &&
                     transformed[i[1]].x > transformed[i[1]].z/-fov &&
                     transformed[i[2]].x > transformed[i[2]].z/-fov) &&
@@ -141,19 +131,19 @@ fn main() {
                     y: 1.5,
                     z: -1.0,
                 };
-                light_direction.normalise();
+                light_direction = vector_normalise(&light_direction);
 
-                light_direction = light_direction.rotate(Vec3 {
+                light_direction = light_direction.rotate(&Vec3 {
                     x: 0.0,
                     y: 0.0,
                     z: 0.0,
-                }, fi, 1).rotate(Vec3 {
+                }, fi, 1).rotate(&Vec3 {
                     x: 0.0,
                     y: 0.0,
                     z: 0.0,
                 }, di, 0);
 
-                let shade = ((200.0 * dot(&normal, &light_direction)) as u32 + 25) * 0x010101;
+                let shade = ((200.0 * vector_dot(&normal, &light_direction)) as u32 + 25) * 0x010101;
 
                 triangles.push(Triangle{
                     a: cube.projected_mesh[i[0]],
