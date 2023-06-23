@@ -1,3 +1,4 @@
+use std::time::{Duration, Instant};
 use minifb::{Key, Scale, Window, WindowOptions};
 
 const WIDTH: usize = 800;
@@ -41,9 +42,9 @@ fn main() {
     /*window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));*/
 
     while window.is_open() {
+        let start = Instant::now();
         let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
         let mut triangles:Vec<Triangle> = vec![];
-        let mut transformed_index = vec![false; cube.mesh.len()];
         let mut projected_index = vec![false; cube.mesh.len()];
 
         for i in window.get_keys() {
@@ -93,17 +94,11 @@ fn main() {
             }
         }
 
+        for (i,j) in cube.mesh.iter().enumerate(){
+            transformed[i] = (vector_sub(&(j.rotate(&camera, fi, 1).rotate(&camera, di, 0)), &camera));
+        }
+
         for i in &cube.faces {
-            for &j in i {
-                if !transformed_index[j] {
-                    transformed[j] = cube.mesh[j].rotate(&camera, fi, 1).rotate(&camera, di, 0);
-
-                    transformed[j] = vector_sub(&transformed[j],&camera);
-
-                    transformed_index[j] = true;
-                }
-            }
-
             let normal = normal(&transformed[i[0]], &transformed[i[1]], &transformed[i[2]]);
             if ((vector_dot(&normal, &transformed[i[0]])) < 0.0) &&
                 !(transformed[i[0]].x > transformed[i[0]].z/-fov &&
@@ -167,5 +162,6 @@ fn main() {
         line(&mut buffer, [3*WIDTH as i32/4,3*HEIGHT as i32/4], [3*WIDTH as i32/4,HEIGHT as i32/4], 0xff0000);
 
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
+        window.set_title(&(1.0/start.elapsed().as_secs_f32()).to_string());
     }
 }
