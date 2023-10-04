@@ -40,7 +40,7 @@ fn main() {
 
     window.set_position(360, 0);
     /*window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));*/
-
+    let mut avr = 0.0;
     while window.is_open() {
         let start = Instant::now();
         let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
@@ -156,12 +156,14 @@ fn main() {
             i.draw_face(&mut buffer, i.color);
         }
 
-        line(&mut buffer, [WIDTH as i32/4,HEIGHT as i32/4], [WIDTH as i32/4,3*HEIGHT as i32/4], 0xff0000);
+        /*line(&mut buffer, [WIDTH as i32/4,HEIGHT as i32/4], [WIDTH as i32/4,3*HEIGHT as i32/4], 0xff0000);
         line(&mut buffer, [WIDTH as i32/4,HEIGHT as i32/4], [3*WIDTH as i32/4,HEIGHT as i32/4], 0xff0000);
         line(&mut buffer, [3*WIDTH as i32/4,3*HEIGHT as i32/4], [WIDTH as i32/4,3*HEIGHT as i32/4], 0xff0000);
-        line(&mut buffer, [3*WIDTH as i32/4,3*HEIGHT as i32/4], [3*WIDTH as i32/4,HEIGHT as i32/4], 0xff0000);
+        line(&mut buffer, [3*WIDTH as i32/4,3*HEIGHT as i32/4], [3*WIDTH as i32/4,HEIGHT as i32/4], 0xff0000);*/
 
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
         window.set_title(&(1.0/start.elapsed().as_secs_f32()).to_string());
+        avr = (avr + (1.0/start.elapsed().as_secs_f32()))/2.0;
     }
+    println!("{}",avr);
 }
