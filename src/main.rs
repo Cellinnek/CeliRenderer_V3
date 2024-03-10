@@ -1,4 +1,4 @@
-use std::time::{Duration, Instant};
+use std::time::{Instant};
 use minifb::{Key, Scale, Window, WindowOptions};
 
 const WIDTH: usize = 800;
@@ -95,7 +95,7 @@ fn main() {
         }
 
         for (i,j) in cube.mesh.iter().enumerate(){
-            transformed[i] = (vector_sub(&(j.rotate(&camera, fi, 1).rotate(&camera, di, 0)), &camera));
+            transformed[i] = &(j.rotate(&camera, fi, 1).rotate(&camera, di, 0)) - &camera;
         }
 
         for i in &cube.faces {
@@ -138,7 +138,7 @@ fn main() {
                     z: 0.0,
                 }, di, 0);
 
-                let shade = ((200.0 * vector_dot(&normal, &light_direction)) as u32 + 25) * 0x010101;
+                let shade = ((200.0 * (&normal * &light_direction)) as u32 + 25) * 0x010101;
 
                 triangles.push(Triangle{
                     a: cube.projected_mesh[i[0]],

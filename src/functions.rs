@@ -1,6 +1,7 @@
 use crate::HEIGHT;
 use crate::WIDTH;
 use std::fs::read_to_string;
+use std::ops::{Add, Sub, Mul, Div};
 
 pub fn line(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], color: u32) {
     let mut x = x1;
@@ -163,8 +164,50 @@ pub fn triangle(
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Vec3 {pub x: f32, pub y: f32, pub z: f32}
+
+impl Add for &Vec3 {
+    type Output = Vec3;
+
+    fn add(self, other: Self) -> Vec3 {
+        Vec3 {x: self.x + other.x, y: self.y + other.y, z: self.z + other.z}
+    }
+}
+
+impl Sub for &Vec3 {
+    type Output = Vec3;
+
+    fn sub(self, other: Self) -> Vec3 {
+        Vec3 {x: self.x - other.x, y: self.y - other.y, z: self.z - other.z}
+    }
+}
+
+impl Mul for &Vec3 {
+    type Output = f32;
+
+    fn mul(self, other: Self) -> f32 {
+        self.x * other.x + self.y * other.y + self.z * other.z
+    }
+}
+
+impl Mul<&f32> for &Vec3 {
+    type Output = Vec3;
+
+
+    fn mul(self, other: &f32) -> Vec3 {
+        Vec3 { x: self.x * other, y: self.y * other, z: self.z * other}
+    }
+}
+
+impl Div<&f32> for &Vec3 {
+    type Output = Vec3;
+
+
+    fn div(self, other: &f32) -> Vec3 {
+        Vec3 { x: self.x / other, y: self.y / other, z: self.z / other}
+    }
+}
 
 impl Vec3 {
     pub fn project(&self, f: f32) -> [i32; 2] {
@@ -209,38 +252,6 @@ impl Vec3 {
     }
 }
 
-pub fn vector_sub(vec1: &Vec3, vec2: &Vec3) -> Vec3{
-    Vec3{
-        x: vec1.x - vec2.x,
-        y: vec1.y - vec2.y,
-        z: vec1.z - vec2.z
-    }
-}
-
-pub fn vector_add(vec1: &Vec3, vec2: &Vec3) -> Vec3{
-    Vec3{
-        x: vec1.x + vec2.x,
-        y: vec1.y + vec2.y,
-        z: vec1.z + vec2.z
-    }
-}
-
-pub fn vector_mul(vec1: &Vec3, k: &f32) -> Vec3{
-    Vec3{
-        x: vec1.x*k,
-        y: vec1.y*k,
-        z: vec1.z*k
-    }
-}
-
-pub fn vector_div(vec1: &Vec3, k: &f32) -> Vec3{
-    Vec3{
-        x: vec1.x/k,
-        y: vec1.y/k,
-        z: vec1.z/k
-    }
-}
-
 pub fn vector_dot(a: &Vec3, b: &Vec3) -> f32 {a.x * b.x + a.y * b.y + a.z * b.z}
 
 pub fn vector_normalise(vec: &Vec3) -> Vec3{
@@ -249,12 +260,12 @@ pub fn vector_normalise(vec: &Vec3) -> Vec3{
         + vec.z * vec.z)
         .sqrt();
 
-    vector_div(vec,&l)
+    vec/&l
 }
 
 pub fn normal(a: &Vec3, b: &Vec3, c: &Vec3) -> Vec3{
-    let line1 = vector_sub(b,a);
-    let line2 = vector_sub(c,a);
+    let line1 = b - a;
+    let line2 = c - a;
     let normal = Vec3 {
         x: line1.y * line2.z - line1.z * line2.y,
         y: line1.z * line2.x - line1.x * line2.z,
@@ -311,78 +322,5 @@ impl Triangle {
         line(buffer, self.a, self.b, color);
         line(buffer, self.b, self.c, color);
         line(buffer, self.c, self.a, color);
-    }
-}
-
-pub fn intersect(plane_p: &Vec3, plane_n: &Vec3, line_start: &Vec3, line_end: &Vec3) -> Vec3{
-    let plane_n = &vector_normalise(plane_n);
-    let plane_d = -vector_dot(plane_n, plane_p);
-    let ad = vector_dot(line_start, plane_n);
-    let bd = vector_dot(line_end, plane_n);
-    let t = (-plane_d - ad) / (bd - ad);
-    let line_start_to_end = &vector_sub(line_start,line_end);
-    let line_to_intersect = &vector_mul(line_start_to_end,&t);
-    vector_add(line_start,line_to_intersect)
-}
-
-pub fn triangle_clip_plane(plane_p: &Vec3, plane_n: &Vec3, in_tri: [&Vec3; 3]) -> (Vec<[Vec3;3]>,usize){
-    let plane_n = &vector_normalise(plane_n);
-    let dist = |p: &Vec3| -> f32 {
-        let p = vector_normalise(p);
-        (plane_n.x * p.x + plane_n.y * p.y + plane_n.z * p.z - vector_dot(plane_n, plane_p))
-    };
-    let mut inside_points = vec![Vec3{ x: 0.0, y: 0.0, z: 0.0};3];
-    let mut n_inside_points = 0;
-    let mut outside_points = vec![Vec3{ x: 0.0, y: 0.0, z: 0.0};3];
-    let mut n_outside_points = 0;
-
-    let d0 = dist(&in_tri[0]);
-    let d1 = dist(&in_tri[1]);
-    let d2 = dist(&in_tri[2]);
-
-    if d0 >= 0.0 { inside_points[n_inside_points] = in_tri[0].clone(); n_inside_points+=1;}
-    else { outside_points[n_outside_points] = in_tri[0].clone(); n_outside_points+=1;}
-    if d1 >= 0.0 { inside_points[n_inside_points] = in_tri[1].clone(); n_inside_points+=1;}
-    else { outside_points[n_outside_points] = in_tri[1].clone(); n_outside_points+=1;}
-    if d2 >= 0.0 { inside_points[n_inside_points] = in_tri[2].clone(); n_inside_points+=1;}
-    else { outside_points[n_outside_points] = in_tri[2].clone(); n_outside_points+=1;}
-
-    if n_inside_points == 0 {
-        return (vec![[Vec3{ x: 0.0, y: 0.0, z: 0.0},Vec3{ x: 0.0, y: 0.0, z: 0.0},Vec3{ x: 0.0, y: 0.0, z: 0.0}]], 0);
-    }
-
-    if n_inside_points == 3{
-        return (vec![
-            [   inside_points[0].clone(),
-                inside_points[1].clone(),
-                inside_points[2].clone()]
-        ],1);
-    }
-
-    if n_inside_points == 1 && n_outside_points == 2{
-        return (vec![
-            [   inside_points[0].clone(),
-                intersect(plane_p, plane_n, &mut inside_points[0], &outside_points[0]),
-                intersect(plane_p, plane_n, &mut inside_points[0], &outside_points[1])]
-        ],1);
-    }
-
-    if n_inside_points == 2 && n_outside_points == 1{
-        return (vec![
-            [   inside_points[0].clone(),
-                inside_points[1].clone(),
-                intersect(plane_p, plane_n, &mut inside_points[0], &outside_points[0])],
-            [   inside_points[1].clone(),
-                inside_points[2].clone(),
-                intersect(plane_p, plane_n, &mut inside_points[1], &outside_points[0])]
-        ],2);
-    }
-
-    else {
-        return (vec![
-            [   inside_points[0].clone(),
-                inside_points[1].clone(),
-                inside_points[2].clone()]
-        ],1);
     }
 }
