@@ -164,7 +164,7 @@ pub fn triangle(
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Vec3 {pub x: f32, pub y: f32, pub z: f32}
 
 impl Add for &Vec3 {
@@ -174,7 +174,6 @@ impl Add for &Vec3 {
         Vec3 {x: self.x + other.x, y: self.y + other.y, z: self.z + other.z}
     }
 }
-
 impl Sub for &Vec3 {
     type Output = Vec3;
 
@@ -182,7 +181,6 @@ impl Sub for &Vec3 {
         Vec3 {x: self.x - other.x, y: self.y - other.y, z: self.z - other.z}
     }
 }
-
 impl Mul for &Vec3 {
     type Output = f32;
 
@@ -190,19 +188,15 @@ impl Mul for &Vec3 {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
 }
-
 impl Mul<&f32> for &Vec3 {
     type Output = Vec3;
-
 
     fn mul(self, other: &f32) -> Vec3 {
         Vec3 { x: self.x * other, y: self.y * other, z: self.z * other}
     }
 }
-
 impl Div<&f32> for &Vec3 {
     type Output = Vec3;
-
 
     fn div(self, other: &f32) -> Vec3 {
         Vec3 { x: self.x / other, y: self.y / other, z: self.z / other}
@@ -215,6 +209,15 @@ impl Vec3 {
             (((self.x * f) / self.z + 1.0) * WIDTH as f32 / 2.0) as i32,
             (((self.y * f) / self.z + 1.0) * HEIGHT as f32 / 2.0) as i32,
         ]
+    }
+
+    pub fn normalise(&self) -> Vec3{
+        let l = (self.x * self.x
+            + self.y * self.y
+            + self.z * self.z)
+            .sqrt();
+
+        self/&l
     }
 
     pub fn rotate (&self, r: &Vec3, fi: f32, axis: u8) -> Vec3{
@@ -252,17 +255,6 @@ impl Vec3 {
     }
 }
 
-pub fn vector_dot(a: &Vec3, b: &Vec3) -> f32 {a.x * b.x + a.y * b.y + a.z * b.z}
-
-pub fn vector_normalise(vec: &Vec3) -> Vec3{
-    let l = (vec.x * vec.x
-        + vec.y * vec.y
-        + vec.z * vec.z)
-        .sqrt();
-
-    vec/&l
-}
-
 pub fn normal(a: &Vec3, b: &Vec3, c: &Vec3) -> Vec3{
     let line1 = b - a;
     let line2 = c - a;
@@ -272,7 +264,7 @@ pub fn normal(a: &Vec3, b: &Vec3, c: &Vec3) -> Vec3{
         z: line1.x * line2.y - line1.y * line2.x,
     };
 
-    vector_normalise(&normal)
+    normal.normalise()
 }
 
 

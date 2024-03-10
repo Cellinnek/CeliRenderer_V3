@@ -100,7 +100,7 @@ fn main() {
 
         for i in &cube.faces {
             let normal = normal(&transformed[i[0]], &transformed[i[1]], &transformed[i[2]]);
-            if ((vector_dot(&normal, &transformed[i[0]])) < 0.0) &&
+            if (&normal * &transformed[i[0]]) < 0.0 &&
                 !(transformed[i[0]].x > transformed[i[0]].z/-fov &&
                     transformed[i[1]].x > transformed[i[1]].z/-fov &&
                     transformed[i[2]].x > transformed[i[2]].z/-fov) &&
@@ -126,7 +126,7 @@ fn main() {
                     y: 1.5,
                     z: -1.0,
                 };
-                light_direction = vector_normalise(&light_direction);
+                light_direction = light_direction.normalise();
 
                 light_direction = light_direction.rotate(&Vec3 {
                     x: 0.0,
