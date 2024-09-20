@@ -38,13 +38,18 @@ pub fn line(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], color: u
     }
 }
 
+#[allow(dead_code)]
+pub fn draw_edges(buffer: &mut [u32], [a,b,c]: [[i32;2];3], color: u32){
+    line(buffer, a, b, color);
+    line(buffer, b, c, color);
+    line(buffer, c, a, color);
+}
+
 #[allow(non_snake_case)]
-pub fn triangle(
+pub fn draw_triangle(
     buffer: &mut [u32],
     zbuffer: &mut [f32],
-    [x1, y1]: [i32; 2],
-    [x2, y2]: [i32; 2],
-    [x3, y3]: [i32; 2],
+    [[x1, y1],[x2, y2],[x3, y3]]: [[i32; 2]; 3],
     [z1, z2, z3]: [f32; 3],
     color: u32)
 {
@@ -131,23 +136,20 @@ pub fn triangle(
                         if ix >= WIDTH as i32 || iy >= HEIGHT as i32 || ix < 0 || iy < 0 {
                             continue;
                         }
-
                         let area = 0.5 * ((x1*y2 + x2*y3 + x3*y1 - x3*y2 - x1*y3 - x2*y1) as f32).abs();
 
                         let w1 = ((ix - x2) * (y3 - y2) - (iy - y2) * (x3 - x2)) as f32/area;
                         let w2 = ((ix - x3) * (y1 - y3) - (iy - y3) * (x1 - x3)) as f32/area;
                         let w3 = ((ix - x1) * (y2 - y1) - (iy - y1) * (x2 - x1)) as f32/area;
+                        
+                        let z = w1 * z1 + w2 * z2 + w3 * z3;
+                        let depth = 1.0/z;
 
-                        if (w1 >= 0.0) & (w2 >= 0.0) & (w3 >= 0.0){
-                            let z = w1 * z1 + w2 * z2 + w3 * z3;
-                            let depth = 1.0/z;
-
-                            if depth > zbuffer[(ix + iy * WIDTH as i32) as usize]{
-                                zbuffer[(ix + iy * WIDTH as i32) as usize] = depth;
-                                buffer[(ix + iy * WIDTH as i32) as usize] = color;
-                                // buffer[(ix + iy * WIDTH as i32) as usize] = (255.0*depth) as u32 * 0x010101;
-                            }
+                        if depth > zbuffer[(ix + iy * WIDTH as i32) as usize]{
+                            zbuffer[(ix + iy * WIDTH as i32) as usize] = depth;
+                            buffer[(ix + iy * WIDTH as i32) as usize] = color;
                         }
+                        
                     }
                 }
             } else {
@@ -170,16 +172,13 @@ pub fn triangle(
                             let w1 = ((ix - x2) * (y3 - y2) - (iy - y2) * (x3 - x2)) as f32/area;
                             let w2 = ((ix - x3) * (y1 - y3) - (iy - y3) * (x1 - x3)) as f32/area;
                             let w3 = ((ix - x1) * (y2 - y1) - (iy - y1) * (x2 - x1)) as f32/area;
+                            
+                            let z = w1*z1 + w2*z2 + w3*z3;
+                            let depth = 1.0/z;
 
-                            if (w1 >= 0.0) & (w2 >= 0.0) & (w3 >= 0.0){
-                                let z = w1 * (z1) + w2 * (z2) + w3 * (z3);
-                                let depth = 1.0/z;
-
-                                if depth > zbuffer[(ix + iy * WIDTH as i32) as usize]{
-                                    zbuffer[(ix + iy * WIDTH as i32) as usize] = depth;
-                                    buffer[(ix + iy * WIDTH as i32) as usize] = color;
-                                    // buffer[(ix + iy * WIDTH as i32) as usize] = (255.0*depth) as u32 * 0x010101;
-                                }
+                            if depth > zbuffer[(ix + iy * WIDTH as i32) as usize]{
+                                zbuffer[(ix + iy * WIDTH as i32) as usize] = depth;
+                                buffer[(ix + iy * WIDTH as i32) as usize] = color;
                             }
                         }
 
@@ -324,26 +323,5 @@ impl Obj {
                 _ => ()
             }
         }
-    }
-}
-
-#[derive(Clone)]
-pub struct Triangle {
-    pub a: [i32;2],
-    pub b: [i32;2],
-    pub c: [i32;2],
-    pub color: u32,
-}
-
-impl Triangle {
-    pub fn draw_face(&self, buffer: &mut [u32], zbuffer: &mut [f32], zs:[f32;3] ,color: u32){
-        triangle(buffer, zbuffer, self.a, self.b, self.c, zs, color);
-    }
-
-    #[allow(dead_code)]
-    pub fn draw_edges(&self, buffer: &mut [u32], color: u32){
-        line(buffer, self.a, self.b, color);
-        line(buffer, self.b, self.c, color);
-        line(buffer, self.c, self.a, color);
     }
 }

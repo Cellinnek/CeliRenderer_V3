@@ -47,8 +47,8 @@ fn main() {
         let mut zbuffer: Vec<f32> = vec![0.0; WIDTH * HEIGHT];
         let mut projected_index = vec![false; cube.mesh.len()];
 
-        for i in window.get_keys() {
-            match i {
+        for key in window.get_keys() {
+            match key {
                 Key::W => {
                     camera.x += 0.04 * fi.sin();
                     camera.z += 0.04 * fi.cos();
@@ -98,66 +98,62 @@ fn main() {
             transformed[i] = &(j.rotate(&camera, fi, 1).rotate(&camera, di, 0)) - &camera;
         }
 
-        for i in &cube.faces {
-            let normal = normal(&transformed[i[0]], &transformed[i[1]], &transformed[i[2]]);
-            if (&normal * &transformed[i[0]]) < 0.0 &&
-                !(transformed[i[0]].x > transformed[i[0]].z/-fov &&
-                    transformed[i[1]].x > transformed[i[1]].z/-fov &&
-                    transformed[i[2]].x > transformed[i[2]].z/-fov) &&
-                !(transformed[i[0]].x < transformed[i[0]].z/fov &&
-                    transformed[i[1]].x < transformed[i[1]].z/fov &&
-                    transformed[i[2]].x < transformed[i[2]].z/fov) &&
-                !(transformed[i[0]].y > transformed[i[0]].z/-fov &&
-                    transformed[i[1]].y > transformed[i[1]].z/-fov &&
-                    transformed[i[2]].y > transformed[i[2]].z/-fov) &&
-                !(transformed[i[0]].y < transformed[i[0]].z/fov &&
-                    transformed[i[1]].y < transformed[i[1]].z/fov &&
-                    transformed[i[2]].y < transformed[i[2]].z/fov){
+        let mut light_direction = Vec3 {
+            x: 1.5,
+            y: 1.5,
+            z: -1.0,
+        };
+        light_direction = light_direction.normalise();
 
-                for &j in i {
-                    if !projected_index[j] {
-                        cube.projected_mesh[j] = transformed[j].project(fov);
-                        projected_index[j] = true;
+        light_direction = light_direction.rotate(&Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        }, fi, 1).rotate(&Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        }, di, 0);
+
+        for triangle_indexes in &cube.faces {
+            let normal = normal(&transformed[triangle_indexes[0]], &transformed[triangle_indexes[1]], &transformed[triangle_indexes[2]]);
+            if (&normal * &transformed[triangle_indexes[0]]) < 0.0 &&
+                !(transformed[triangle_indexes[0]].x > transformed[triangle_indexes[0]].z/-fov &&
+                    transformed[triangle_indexes[1]].x > transformed[triangle_indexes[1]].z/-fov &&
+                    transformed[triangle_indexes[2]].x > transformed[triangle_indexes[2]].z/-fov) &&
+                !(transformed[triangle_indexes[0]].x < transformed[triangle_indexes[0]].z/fov &&
+                    transformed[triangle_indexes[1]].x < transformed[triangle_indexes[1]].z/fov &&
+                    transformed[triangle_indexes[2]].x < transformed[triangle_indexes[2]].z/fov) &&
+                !(transformed[triangle_indexes[0]].y > transformed[triangle_indexes[0]].z/-fov &&
+                    transformed[triangle_indexes[1]].y > transformed[triangle_indexes[1]].z/-fov &&
+                    transformed[triangle_indexes[2]].y > transformed[triangle_indexes[2]].z/-fov) &&
+                !(transformed[triangle_indexes[0]].y < transformed[triangle_indexes[0]].z/fov &&
+                    transformed[triangle_indexes[1]].y < transformed[triangle_indexes[1]].z/fov &&
+                    transformed[triangle_indexes[2]].y < transformed[triangle_indexes[2]].z/fov) {
+                for &vert_index in triangle_indexes {
+                    if !projected_index[vert_index] {
+                        cube.projected_mesh[vert_index] = transformed[vert_index].project(fov);
+                        projected_index[vert_index] = true;
                     }
                 }
 
-                let mut light_direction = Vec3 {
-                    x: 1.5,
-                    y: 1.5,
-                    z: -1.0,
-                };
-                light_direction = light_direction.normalise();
-
-                light_direction = light_direction.rotate(&Vec3 {
-                    x: 0.0,
-                    y: 0.0,
-                    z: 0.0,
-                }, fi, 1).rotate(&Vec3 {
-                    x: 0.0,
-                    y: 0.0,
-                    z: 0.0,
-                }, di, 0);
-
                 let shade = ((200.0 * (&normal * &light_direction)) as u32 + 25) * 0x010101;
 
-                let t = Triangle{
-                    a: cube.projected_mesh[i[0]],
-                    b: cube.projected_mesh[i[1]],
-                    c: cube.projected_mesh[i[2]],
-                    color: shade,
-                };
-                t.draw_face(&mut buffer, &mut zbuffer, [transformed[i[0]].z,transformed[i[1]].z,transformed[i[2]].z],t.color);
+                draw_triangle(&mut buffer, &mut zbuffer,
+                              [
+                             cube.projected_mesh[triangle_indexes[0]],
+                             cube.projected_mesh[triangle_indexes[1]],
+                             cube.projected_mesh[triangle_indexes[2]]],
+                              [
+                             transformed[triangle_indexes[0]].z,
+                             transformed[triangle_indexes[1]].z,
+                             transformed[triangle_indexes[2]].z], shade);
             }
         }
-
-        /*line(&mut buffer, [WIDTH as i32/4,HEIGHT as i32/4], [WIDTH as i32/4,3*HEIGHT as i32/4], 0xff0000);
-        line(&mut buffer, [WIDTH as i32/4,HEIGHT as i32/4], [3*WIDTH as i32/4,HEIGHT as i32/4], 0xff0000);
-        line(&mut buffer, [3*WIDTH as i32/4,3*HEIGHT as i32/4], [WIDTH as i32/4,3*HEIGHT as i32/4], 0xff0000);
-        line(&mut buffer, [3*WIDTH as i32/4,3*HEIGHT as i32/4], [3*WIDTH as i32/4,HEIGHT as i32/4], 0xff0000);*/
 
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
         window.set_title(&(1.0/start.elapsed().as_secs_f32()).to_string());
         avr = (avr + (1.0/start.elapsed().as_secs_f32()))/2.0;
     }
-    println!("{}",avr);
+    println!("{}",avr*2.0);
 }
