@@ -141,15 +141,15 @@ pub fn draw_triangle(
                         let w1 = ((ix - x2) * (y3 - y2) - (iy - y2) * (x3 - x2)) as f32/area;
                         let w2 = ((ix - x3) * (y1 - y3) - (iy - y3) * (x1 - x3)) as f32/area;
                         let w3 = ((ix - x1) * (y2 - y1) - (iy - y1) * (x2 - x1)) as f32/area;
-                        
-                        let z = w1 * z1 + w2 * z2 + w3 * z3;
+
+                        let z = w3.mul_add(z3, w1.mul_add(z1, w2 * z2));
                         let depth = 1.0/z;
 
                         if depth > zbuffer[(ix + iy * WIDTH as i32) as usize]{
                             zbuffer[(ix + iy * WIDTH as i32) as usize] = depth;
                             buffer[(ix + iy * WIDTH as i32) as usize] = color;
                         }
-                        
+
                     }
                 }
             } else {
@@ -172,8 +172,8 @@ pub fn draw_triangle(
                             let w1 = ((ix - x2) * (y3 - y2) - (iy - y2) * (x3 - x2)) as f32/area;
                             let w2 = ((ix - x3) * (y1 - y3) - (iy - y3) * (x1 - x3)) as f32/area;
                             let w3 = ((ix - x1) * (y2 - y1) - (iy - y1) * (x2 - x1)) as f32/area;
-                            
-                            let z = w1*z1 + w2*z2 + w3*z3;
+
+                            let z = w3.mul_add(z3, w1.mul_add(z1, w2 * z2));
                             let depth = 1.0/z;
 
                             if depth > zbuffer[(ix + iy * WIDTH as i32) as usize]{
@@ -217,7 +217,7 @@ impl Mul for &Vec3 {
     type Output = f32;
 
     fn mul(self, other: Self) -> f32 {
-        self.x * other.x + self.y * other.y + self.z * other.z
+        self.z.mul_add(other.z, self.x.mul_add(other.x, self.y * other.y))
     }
 }
 impl Mul<&f32> for &Vec3 {
@@ -243,42 +243,40 @@ impl Vec3 {
         ]
     }
 
-    pub fn normalise(&self) -> Vec3{
-        let l = (self.x * self.x
-            + self.y * self.y
-            + self.z * self.z)
+    pub fn normalise(&self) -> Self{
+        let l = self.z.mul_add(self.z, self.x.mul_add(self.x, self.y * self.y))
             .sqrt();
 
         self/&l
     }
 
-    pub fn rotate (&self, r: &Vec3, fi: f32, axis: u8) -> Vec3{
+    pub fn rotate (&self, r: &Self, fi: f32, axis: u8) -> Self{
         match axis % 3 {
             0 => {
                 let (y, z) = (self.y - r.y, self.z - r.z);
-                Vec3{
+                Self{
                     x: self.x,
-                    y: z * fi.sin() + y * fi.cos() + r.y,
-                    z: z * fi.cos() - y * fi.sin() + r.z,
+                    y: z.mul_add(fi.sin(), y * fi.cos()) + r.y,
+                    z: z.mul_add(fi.cos(), -(y * fi.sin())) + r.z,
                 }
             }
             1 => {
                 let (x, z) = (self.x - r.x, self.z - r.z);
-                Vec3{
-                    x: x * fi.cos() - z * fi.sin() + r.x,
+                Self{
+                    x: x.mul_add(fi.cos(), -(z * fi.sin())) + r.x,
                     y: self.y,
-                    z: x * fi.sin() + z * fi.cos() + r.z,
+                    z: x.mul_add(fi.sin(), z * fi.cos()) + r.z,
                 }
             }
             2 => {
                 let (x, y) = (self.x - r.x, self.y - r.y);
-                Vec3{
-                    x: y * fi.sin() + x * fi.cos() + r.x,
-                    y: y * fi.cos() - x * fi.sin() + r.y,
+                Self{
+                    x: y.mul_add(fi.sin(), x * fi.cos()) + r.x,
+                    y: y.mul_add(fi.cos(), -(x * fi.sin())) + r.y,
                     z: self.z,
                 }
             }
-            _ => Vec3{
+            _ => Self{
                 x: self.x,
                 y: self.y,
                 z: self.z,
@@ -291,9 +289,9 @@ pub fn normal(a: &Vec3, b: &Vec3, c: &Vec3) -> Vec3{
     let line1 = b - a;
     let line2 = c - a;
     let normal = Vec3 {
-        x: line1.y * line2.z - line1.z * line2.y,
-        y: line1.z * line2.x - line1.x * line2.z,
-        z: line1.x * line2.y - line1.y * line2.x,
+        x: line1.y.mul_add(line2.z, -(line1.z * line2.y)),
+        y: line1.z.mul_add(line2.x, -(line1.x * line2.z)),
+        z: line1.x.mul_add(line2.y, -(line1.y * line2.x)),
     };
 
     normal.normalise()

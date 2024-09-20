@@ -5,7 +5,7 @@ const WIDTH: usize = 800;
 const HEIGHT: usize = 800;
 
 mod functions;
-use functions::*;
+use functions::{Obj, Vec3, draw_triangle, normal};
 
 fn main() {
     let mut fov: f32 = -2.0;
@@ -24,7 +24,7 @@ fn main() {
         projected_mesh: vec![]
     };
 
-    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/monke.obj");
+    cube.load_from_file("C:/Users/Cystic/CLionProjects/CeliRenderer_V3/src/pot.obj");
 
     let mut transformed = vec![Vec3{
         x: 0.0,
@@ -116,6 +116,9 @@ fn main() {
         }, di, 0);
 
         for triangle_indexes in &cube.faces {
+            if transformed[triangle_indexes[0]].z < 0.0 && transformed[triangle_indexes[1]].z < 0.0 && transformed[triangle_indexes[2]].z < 0.0{
+                continue;
+            };
             let normal = normal(&transformed[triangle_indexes[0]], &transformed[triangle_indexes[1]], &transformed[triangle_indexes[2]]);
             if (&normal * &transformed[triangle_indexes[0]]) < 0.0 &&
                 !(transformed[triangle_indexes[0]].x > transformed[triangle_indexes[0]].z/-fov &&
