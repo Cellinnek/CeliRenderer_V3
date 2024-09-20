@@ -12,7 +12,7 @@ fn main() {
     let mut camera = Vec3{
         x: 0.0,
         y: 0.0,
-        z: 0.0,
+        z: -6.0,
     };
 
     let mut fi:f32 = 0.0;
@@ -44,7 +44,7 @@ fn main() {
     while window.is_open() {
         let start = Instant::now();
         let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
-        let mut triangles:Vec<Triangle> = vec![];
+        let mut zbuffer: Vec<f32> = vec![0.0; WIDTH * HEIGHT];
         let mut projected_index = vec![false; cube.mesh.len()];
 
         for i in window.get_keys() {
@@ -140,20 +140,14 @@ fn main() {
 
                 let shade = ((200.0 * (&normal * &light_direction)) as u32 + 25) * 0x010101;
 
-                triangles.push(Triangle{
+                let t = Triangle{
                     a: cube.projected_mesh[i[0]],
                     b: cube.projected_mesh[i[1]],
                     c: cube.projected_mesh[i[2]],
-                    depth: transformed[i[0]].z + transformed[i[1]].z + transformed[i[2]].z,
-                    color: shade
-                });
+                    color: shade,
+                };
+                t.draw_face(&mut buffer, &mut zbuffer, [transformed[i[0]].z,transformed[i[1]].z,transformed[i[2]].z],t.color);
             }
-        }
-
-        triangles.sort_unstable_by(|y, x| x.depth.partial_cmp(&y.depth).unwrap());
-
-        for i in &triangles {
-            i.draw_face(&mut buffer, i.color);
         }
 
         /*line(&mut buffer, [WIDTH as i32/4,HEIGHT as i32/4], [WIDTH as i32/4,3*HEIGHT as i32/4], 0xff0000);

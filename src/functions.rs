@@ -41,9 +41,11 @@ pub fn line(buffer: &mut [u32], [x1, y1]: [i32; 2], [x2, y2]: [i32; 2], color: u
 #[allow(non_snake_case)]
 pub fn triangle(
     buffer: &mut [u32],
+    zbuffer: &mut [f32],
     [x1, y1]: [i32; 2],
     [x2, y2]: [i32; 2],
     [x3, y3]: [i32; 2],
+    [z1, z2, z3]: [f32; 3],
     color: u32)
 {
     let X1 = 16 * x1;
@@ -96,27 +98,27 @@ pub fn triangle(
 
     for y in (miny..maxy).step_by(q as usize) {
         for x in (minx..maxx).step_by(q as usize) {
-            let x0 = x << 4;
-            let x1 = (x + q - 1) << 4;
-            let y0 = y << 4;
-            let y1 = (y + q - 1) << 4;
+            let X0 = x << 4;
+            let X1 = (x + q - 1) << 4;
+            let Y0 = y << 4;
+            let Y1 = (y + q - 1) << 4;
 
-            let a00 = (C1 + DX12 * y0 - DY12 * x0 > 0) as u8;
-            let a10 = (C1 + DX12 * y0 - DY12 * x1 > 0) as u8;
-            let a01 = (C1 + DX12 * y1 - DY12 * x0 > 0) as u8;
-            let a11 = (C1 + DX12 * y1 - DY12 * x1 > 0) as u8;
+            let a00 = (C1 + DX12 * Y0 - DY12 * X0 > 0) as u8;
+            let a10 = (C1 + DX12 * Y0 - DY12 * X1 > 0) as u8;
+            let a01 = (C1 + DX12 * Y1 - DY12 * X0 > 0) as u8;
+            let a11 = (C1 + DX12 * Y1 - DY12 * X1 > 0) as u8;
             let a = a00 | (a10 << 1) | (a01 << 2) | (a11 << 3);
 
-            let b00 = (C2 + DX23 * y0 - DY23 * x0 > 0) as u8;
-            let b10 = (C2 + DX23 * y0 - DY23 * x1 > 0) as u8;
-            let b01 = (C2 + DX23 * y1 - DY23 * x0 > 0) as u8;
-            let b11 = (C2 + DX23 * y1 - DY23 * x1 > 0) as u8;
+            let b00 = (C2 + DX23 * Y0 - DY23 * X0 > 0) as u8;
+            let b10 = (C2 + DX23 * Y0 - DY23 * X1 > 0) as u8;
+            let b01 = (C2 + DX23 * Y1 - DY23 * X0 > 0) as u8;
+            let b11 = (C2 + DX23 * Y1 - DY23 * X1 > 0) as u8;
             let b = b00 | (b10 << 1) | (b01 << 2) | (b11 << 3);
 
-            let c00 = (C3 + DX31 * y0 - DY31 * x0 > 0) as u8;
-            let c10 = (C3 + DX31 * y0 - DY31 * x1 > 0) as u8;
-            let c01 = (C3 + DX31 * y1 - DY31 * x0 > 0) as u8;
-            let c11 = (C3 + DX31 * y1 - DY31 * x1 > 0) as u8;
+            let c00 = (C3 + DX31 * Y0 - DY31 * X0 > 0) as u8;
+            let c10 = (C3 + DX31 * Y0 - DY31 * X1 > 0) as u8;
+            let c01 = (C3 + DX31 * Y1 - DY31 * X0 > 0) as u8;
+            let c11 = (C3 + DX31 * Y1 - DY31 * X1 > 0) as u8;
             let c = c00 | (c10 << 1) | (c01 << 2) | (c11 << 3);
 
             if a == 0x0 || b == 0x0 || c == 0x0 {
@@ -125,17 +127,33 @@ pub fn triangle(
 
             if a == 0xF && b == 0xF && c == 0xF {
                 for iy in y..(y+q) {
-                    for ix in x..(x + q) {
+                    for ix in x..(x+q) {
                         if ix >= WIDTH as i32 || iy >= HEIGHT as i32 || ix < 0 || iy < 0 {
                             continue;
                         }
-                        buffer[(ix + iy * WIDTH as i32) as usize] = color;
+
+                        let area = 0.5 * ((x1*y2 + x2*y3 + x3*y1 - x3*y2 - x1*y3 - x2*y1) as f32).abs();
+
+                        let w1 = ((ix - x2) * (y3 - y2) - (iy - y2) * (x3 - x2)) as f32/area;
+                        let w2 = ((ix - x3) * (y1 - y3) - (iy - y3) * (x1 - x3)) as f32/area;
+                        let w3 = ((ix - x1) * (y2 - y1) - (iy - y1) * (x2 - x1)) as f32/area;
+
+                        if (w1 >= 0.0) & (w2 >= 0.0) & (w3 >= 0.0){
+                            let z = w1 * z1 + w2 * z2 + w3 * z3;
+                            let depth = 1.0/z;
+
+                            if depth > zbuffer[(ix + iy * WIDTH as i32) as usize]{
+                                zbuffer[(ix + iy * WIDTH as i32) as usize] = depth;
+                                buffer[(ix + iy * WIDTH as i32) as usize] = color;
+                                // buffer[(ix + iy * WIDTH as i32) as usize] = (255.0*depth) as u32 * 0x010101;
+                            }
+                        }
                     }
                 }
             } else {
-                let mut CY1 = C1 + DX12 * y0 - DY12 * x0;
-                let mut CY2 = C2 + DX23 * y0 - DY23 * x0;
-                let mut CY3 = C3 + DX31 * y0 - DY31 * x0;
+                let mut CY1 = C1 + DX12 * Y0 - DY12 * X0;
+                let mut CY2 = C2 + DX23 * Y0 - DY23 * X0;
+                let mut CY3 = C3 + DX31 * Y0 - DY31 * X0;
 
                 for iy in y..(y + q) {
                     let mut CX1 = CY1;
@@ -147,7 +165,22 @@ pub fn triangle(
                             if ix >= WIDTH as i32 || iy >= HEIGHT as i32 || ix < 0 || iy < 0 {
                                 continue;
                             }
-                            buffer[(ix + iy * WIDTH as i32) as usize] = color;
+                            let area = 0.5 * ((x1*y2 + x2*y3 + x3*y1 - x3*y2 - x1*y3 - x2*y1) as f32).abs();
+
+                            let w1 = ((ix - x2) * (y3 - y2) - (iy - y2) * (x3 - x2)) as f32/area;
+                            let w2 = ((ix - x3) * (y1 - y3) - (iy - y3) * (x1 - x3)) as f32/area;
+                            let w3 = ((ix - x1) * (y2 - y1) - (iy - y1) * (x2 - x1)) as f32/area;
+
+                            if (w1 >= 0.0) & (w2 >= 0.0) & (w3 >= 0.0){
+                                let z = w1 * (z1) + w2 * (z2) + w3 * (z3);
+                                let depth = 1.0/z;
+
+                                if depth > zbuffer[(ix + iy * WIDTH as i32) as usize]{
+                                    zbuffer[(ix + iy * WIDTH as i32) as usize] = depth;
+                                    buffer[(ix + iy * WIDTH as i32) as usize] = color;
+                                    // buffer[(ix + iy * WIDTH as i32) as usize] = (255.0*depth) as u32 * 0x010101;
+                                }
+                            }
                         }
 
                         CX1 -= FDY12;
@@ -267,7 +300,6 @@ pub fn normal(a: &Vec3, b: &Vec3, c: &Vec3) -> Vec3{
     normal.normalise()
 }
 
-
 pub struct Obj {pub mesh: Vec<Vec3>, pub faces: Vec<[usize; 3]>, pub projected_mesh: Vec<[i32; 2]>}
 
 impl Obj {
@@ -281,7 +313,7 @@ impl Obj {
                     self.mesh.push(Vec3 {
                     x: s.split_whitespace().nth(1).unwrap().parse::<f32>().unwrap(),
                     y: s.split_whitespace().nth(2).unwrap().parse::<f32>().unwrap(),
-                    z: s.split_whitespace().nth(3).unwrap().parse::<f32>().unwrap() + 6.0 });
+                    z: s.split_whitespace().nth(3).unwrap().parse::<f32>().unwrap()});
                     self.projected_mesh.push([0,0]);
                 },
                 Some("f") => self.faces.push([
@@ -300,13 +332,12 @@ pub struct Triangle {
     pub a: [i32;2],
     pub b: [i32;2],
     pub c: [i32;2],
-    pub depth: f32,
     pub color: u32,
 }
 
 impl Triangle {
-    pub fn draw_face(&self, buffer: &mut [u32], color: u32){
-        triangle(buffer, self.a, self.b, self.c, color);
+    pub fn draw_face(&self, buffer: &mut [u32], zbuffer: &mut [f32], zs:[f32;3] ,color: u32){
+        triangle(buffer, zbuffer, self.a, self.b, self.c, zs, color);
     }
 
     #[allow(dead_code)]
