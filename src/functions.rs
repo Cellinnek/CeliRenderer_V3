@@ -101,6 +101,8 @@ pub fn draw_triangle(
         C3 += 1;
     }
 
+    let area = 0.5 * ((x1*y2 + x2*y3 + x3*y1 - x3*y2 - x1*y3 - x2*y1) as f32).abs();
+
     for y in (miny..maxy).step_by(q as usize) {
         for x in (minx..maxx).step_by(q as usize) {
             let X0 = x << 4;
@@ -136,7 +138,6 @@ pub fn draw_triangle(
                         if ix >= WIDTH as i32 || iy >= HEIGHT as i32 || ix < 0 || iy < 0 {
                             continue;
                         }
-                        let area = 0.5 * ((x1*y2 + x2*y3 + x3*y1 - x3*y2 - x1*y3 - x2*y1) as f32).abs();
 
                         let w1 = ((ix - x2) * (y3 - y2) - (iy - y2) * (x3 - x2)) as f32/area;
                         let w2 = ((ix - x3) * (y1 - y3) - (iy - y3) * (x1 - x3)) as f32/area;
@@ -167,7 +168,6 @@ pub fn draw_triangle(
                             if ix >= WIDTH as i32 || iy >= HEIGHT as i32 || ix < 0 || iy < 0 {
                                 continue;
                             }
-                            let area = 0.5 * ((x1*y2 + x2*y3 + x3*y1 - x3*y2 - x1*y3 - x2*y1) as f32).abs();
 
                             let w1 = ((ix - x2) * (y3 - y2) - (iy - y2) * (x3 - x2)) as f32/area;
                             let w2 = ((ix - x3) * (y1 - y3) - (iy - y3) * (x1 - x3)) as f32/area;
@@ -300,7 +300,7 @@ pub fn normal(a: &Vec3, b: &Vec3, c: &Vec3) -> Vec3{
 pub struct Obj {pub mesh: Vec<Vec3>, pub faces: Vec<[usize; 3]>, pub projected_mesh: Vec<[i32; 2]>}
 
 impl Obj {
-    pub fn load_from_file(&mut self, path: &str) {
+    pub fn load_from_file(&mut self, path: &str){
         let file = read_to_string(path).unwrap();
         let split = file.split('\n');
 

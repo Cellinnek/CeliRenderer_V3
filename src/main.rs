@@ -24,7 +24,7 @@ fn main() {
         projected_mesh: vec![]
     };
 
-    cube.load_from_file("C:/Users/Cystic/CLionProjects/CeliRenderer_V3/src/pot.obj");
+    cube.load_from_file("C:/Users/Cysie/CLionProjects/CeliRenderer_V3/src/monke.obj");
 
     let mut transformed = vec![Vec3{
         x: 0.0,
@@ -41,6 +41,7 @@ fn main() {
     window.set_position(360, 0);
     /*window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));*/
     let mut avr = 0.0;
+    let mut dt = 0.0;
     while window.is_open() {
         let start = Instant::now();
         let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
@@ -50,44 +51,44 @@ fn main() {
         for key in window.get_keys() {
             match key {
                 Key::W => {
-                    camera.x += 0.04 * fi.sin();
-                    camera.z += 0.04 * fi.cos();
+                    camera.x += 4.0 * fi.sin() * dt;
+                    camera.z += 4.0 * fi.cos() * dt;
                 }
                 Key::S => {
-                    camera.x -= 0.04 * fi.sin();
-                    camera.z -= 0.04 * fi.cos();
+                    camera.x -= 4.0 * fi.sin() * dt;
+                    camera.z -= 4.0 * fi.cos() * dt;
                 }
                 Key::A => {
-                    camera.x += 0.04 * fi.cos();
-                    camera.z -= 0.04 * fi.sin();
+                    camera.x += 4.0 * fi.cos() * dt;
+                    camera.z -= 4.0 * fi.sin() * dt;
                 }
                 Key::D => {
-                    camera.x -= 0.04 * fi.cos();
-                    camera.z += 0.04 * fi.sin();
+                    camera.x -= 4.0 * fi.cos() * dt;
+                    camera.z += 4.0 * fi.sin() * dt;
                 }
                 Key::Space => {
-                    camera.y += 0.04;
+                    camera.y += 4.0 * dt;
                 }
                 Key::LeftShift => {
-                    camera.y -= 0.04;
+                    camera.y -= 4.0 * dt;
                 }
                 Key::Left => {
-                    fi += 0.01;
+                    fi += 1.0 * dt;
                 }
                 Key::Right => {
-                    fi -= 0.01;
+                    fi -= 1.0 * dt;
                 }
                 Key::Up => {
-                    di -= 0.01;
+                    di -= 1.0 * dt;
                 }
                 Key::Down => {
-                    di += 0.01;
+                    di += 1.0 * dt;
                 }
                 Key::Q => {
-                    fov *= 0.99;
+                    fov *= 10.0_f32.powf(dt);
                 }
                 Key::E => {
-                    fov /= 0.99;
+                    fov /= 10.0_f32.powf(dt);
                 }
                 _ => ()
 
@@ -116,7 +117,7 @@ fn main() {
         }, di, 0);
 
         for triangle_indexes in &cube.faces {
-            if transformed[triangle_indexes[0]].z < 0.0 && transformed[triangle_indexes[1]].z < 0.0 && transformed[triangle_indexes[2]].z < 0.0{
+            if transformed[triangle_indexes[0]].z < 0.1 && transformed[triangle_indexes[1]].z < 0.1 && transformed[triangle_indexes[2]].z < 0.1{
                 continue;
             };
             let normal = normal(&transformed[triangle_indexes[0]], &transformed[triangle_indexes[1]], &transformed[triangle_indexes[2]]);
@@ -155,8 +156,10 @@ fn main() {
         }
 
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
-        window.set_title(&(1.0/start.elapsed().as_secs_f32()).to_string());
-        avr = (avr + (1.0/start.elapsed().as_secs_f32()))/2.0;
+        
+        dt = start.elapsed().as_secs_f32();
+        avr = (avr + (1.0/dt))/2.0;
+        window.set_title(&(1.0/dt).to_string());
     }
     println!("{}",avr*2.0);
 }
